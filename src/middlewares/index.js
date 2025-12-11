@@ -1,0 +1,17 @@
+const authMiddleware = require('./auth.middleware');
+const {
+  roleMiddleware,
+  isAdmin,
+  isRecruiter,
+  isGraduate,
+} = require('./role.middleware');
+const errorHandler = require('./error.middleware');
+
+module.exports = {
+  authMiddleware,
+  roleMiddleware,
+  isAdmin,
+  isRecruiter,
+  isGraduate,
+  errorHandler,
+};
