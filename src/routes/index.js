@@ -8,6 +8,9 @@ const jobRoutes = require('./job.routes');
 const applicationRoutes = require('./application.routes');
 const conversationRoutes = require('./conversation.routes');
 const notificationRoutes = require('./notification.routes');
+const universityRoutes = require('./university.routes');
+const facultyRoutes = require('./faculty.routes');
+const roleRoutes = require('./role.routes');
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
@@ -16,6 +19,9 @@ router.use('/jobs', jobRoutes);
 router.use('/applications', applicationRoutes);
 router.use('/conversations', conversationRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/universities', universityRoutes);
+router.use('/faculties', facultyRoutes);
+router.use('/roles', roleRoutes);
 
 // Health check
 router.get('/health', (req, res) => {

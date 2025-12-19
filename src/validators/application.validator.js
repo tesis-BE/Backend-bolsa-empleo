@@ -10,6 +10,16 @@ const apply = [
     .withMessage('La carta de presentación no puede exceder 2000 caracteres'),
 ];
 
+const applyByRecruiter = [
+  body('jobId').isInt({ min: 1 }).withMessage('ID de trabajo inválido'),
+  body('userId').isInt({ min: 1 }).withMessage('ID de candidato inválido'),
+  body('coverLetter')
+    .optional()
+    .trim()
+    .isLength({ max: 2000 })
+    .withMessage('La carta de presentación no puede exceder 2000 caracteres'),
+];
+
 const updateStatus = [
   body('status')
     .isIn(Object.values(APPLICATION_STATUS))
@@ -23,5 +33,6 @@ const updateStatus = [
 
 module.exports = {
   apply,
+  applyByRecruiter,
   updateStatus,
 };

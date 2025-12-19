@@ -85,6 +85,94 @@ class UserService extends BaseService {
       ],
     });
   }
+
+  async getProfile(userId) {
+    return this.findById(userId);
+  }
+
+  async addSkill(userId, { name }) {
+    const skill = await UserSkill.create({
+      userId,
+      name,
+    });
+    return skill;
+  }
+
+  async removeSkill(userId, skillId) {
+    const skill = await UserSkill.findOne({
+      where: { id: skillId, userId },
+    });
+    if (!skill) {
+      throw new Error('Habilidad no encontrada');
+    }
+    return skill.destroy();
+  }
+
+  async addPortfolioLink(userId, { title, url }) {
+    const portfolio = await UserPortfolio.create({
+      userId,
+      title,
+      url,
+    });
+    return portfolio;
+  }
+
+  async removePortfolioLink(userId, portfolioId) {
+    const portfolio = await UserPortfolio.findOne({
+      where: { id: portfolioId, userId },
+    });
+    if (!portfolio) {
+      throw new Error('Enlace de portafolio no encontrado');
+    }
+    return portfolio.destroy();
+  }
+
+  async toggleAvailability(userId, available) {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('Usuario no encontrado');
+    }
+    return user.update({ availableForWork: available });
+  }
+
+  async getAllUsers({ page = 1, pageSize = 10, search, userType, isActive }) {
+    const offset = (page - 1) * pageSize;
+    const where = {};
+
+    if (search) {
+      where[Op.or] = [
+        { firstName: { [Op.iLike]: `%${search}%` } },
+        { lastName: { [Op.iLike]: `%${search}%` } },
+        { email: { [Op.iLike]: `%${search}%` } },
+      ];
+    }
+
+    if (userType) {
+      where.userType = userType;
+    }
+
+    if (isActive !== undefined) {
+      where.isActive = isActive;
+    }
+
+    const { count, rows } = await User.findAndCountAll({
+      where,
+      attributes: { exclude: ['password'] },
+      offset,
+      limit: pageSize,
+      order: [['createdAt', 'DESC']],
+    });
+
+    return {
+      data: rows,
+      pagination: {
+        total: count,
+        page,
+        pageSize,
+        totalPages: Math.ceil(count / pageSize),
+      },
+    };
+  }
 }
 
 module.exports = new UserService();

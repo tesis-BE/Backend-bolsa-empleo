@@ -7,6 +7,8 @@ const ConversationService = require('./conversation.service');
 const MessageService = require('./message.service');
 const NotificationService = require('./notification.service');
 const FileService = require('./file.service');
+const UniversityService = require('./university.service');
+const FacultyService = require('./faculty.service');
 
 module.exports = {
   AuthService,
@@ -18,4 +20,6 @@ module.exports = {
   MessageService,
   NotificationService,
   FileService,
+  UniversityService,
+  FacultyService,
 };

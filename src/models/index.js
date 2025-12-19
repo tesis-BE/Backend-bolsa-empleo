@@ -11,6 +11,8 @@ const Notification = require('./Notification');
 const Role = require('./Role');
 const Permission = require('./Permission');
 const RolePermission = require('./RolePermission');
+const University = require('./University');
+const Faculty = require('./Faculty');
 
 // Definir relaciones
 // User -> Company (1 recruiter : 1 company)
@@ -77,11 +79,27 @@ User.hasMany(UserPortfolio, { foreignKey: 'userId', as: 'portfolios' });
 Notification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 User.hasMany(Notification, { foreignKey: 'userId', as: 'notifications' });
 
+// User -> Role (N:M)
+User.belongsToMany(Role, { through: 'UserRoles', foreignKey: 'userId' });
+Role.belongsToMany(User, { through: 'UserRoles', foreignKey: 'roleId' });
+
 // Role -> Permission (N:N)
-RolePermission.belongsTo(Role, { foreignKey: 'roleId' });
-RolePermission.belongsTo(Permission, { foreignKey: 'permissionId' });
-Role.hasMany(RolePermission, { foreignKey: 'roleId' });
-Permission.hasMany(RolePermission, { foreignKey: 'permissionId' });
+Role.belongsToMany(Permission, {
+  through: RolePermission,
+  foreignKey: 'roleId',
+  otherKey: 'permissionId',
+  as: 'permissions',
+});
+Permission.belongsToMany(Role, {
+  through: RolePermission,
+  foreignKey: 'permissionId',
+  otherKey: 'roleId',
+  as: 'roles',
+});
+
+// University -> Faculty (1:N)
+Faculty.belongsTo(University, { foreignKey: 'universityId', as: 'university' });
+University.hasMany(Faculty, { foreignKey: 'universityId', as: 'faculties' });
 
 module.exports = {
   User,
@@ -97,4 +115,6 @@ module.exports = {
   Role,
   Permission,
   RolePermission,
+  University,
+  Faculty,
 };

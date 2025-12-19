@@ -29,6 +29,36 @@ class ApplicationController {
     }
   }
 
+  async applyByRecruiter(req, res) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res
+          .status(400)
+          .json(ApiResponse.error('Error de validación', errors.array()));
+      }
+
+      const { jobId, userId, coverLetter } = req.body;
+      const application = await ApplicationService.applyForCandidate(
+        req.user.id,
+        userId,
+        jobId,
+        coverLetter
+      );
+
+      return res
+        .status(201)
+        .json(
+          ApiResponse.created(
+            'Postulación creada para el candidato',
+            application
+          )
+        );
+    } catch (error) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
+
   async cancel(req, res) {
     try {
       await ApplicationService.cancel(req.params.id, req.user.id);

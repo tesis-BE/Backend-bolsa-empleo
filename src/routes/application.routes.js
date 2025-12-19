@@ -35,6 +35,13 @@ router.get(
   ApplicationController.getRecruiterApplications.bind(ApplicationController)
 );
 
+router.post(
+  '/by-recruiter',
+  roleMiddleware([USER_TYPES.RECRUITER, USER_TYPES.ADMIN]),
+  applicationValidator.applyByRecruiter,
+  ApplicationController.applyByRecruiter.bind(ApplicationController)
+);
+
 router.get(
   '/job/:jobId',
   roleMiddleware([USER_TYPES.RECRUITER, USER_TYPES.ADMIN]),

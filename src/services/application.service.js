@@ -1,6 +1,10 @@
 const BaseService = require('./base.service');
 const { Application, Job, User, Company, Conversation } = require('../models');
-const { APPLICATION_STATUS, JOB_STATUS } = require('../config/constants');
+const {
+  APPLICATION_STATUS,
+  JOB_STATUS,
+  USER_TYPES,
+} = require('../config/constants');
 const NotificationService = require('./notification.service');
 
 class ApplicationService extends BaseService {
@@ -64,6 +68,64 @@ class ApplicationService extends BaseService {
       userId: job.company.recruiterId,
       title: 'Nueva postulación',
       message: `Tienes una nueva postulación para "${job.title}"`,
+      type: 'info',
+      eventType: 'new_application',
+      relatedId: application.id,
+    });
+
+    return application;
+  }
+
+  async applyForCandidate(recruiterId, candidateId, jobId, coverLetter = null) {
+    const job = await Job.findByPk(jobId, {
+      include: [{ model: Company, as: 'company' }],
+    });
+
+    if (!job) {
+      throw new Error('Oferta no encontrada');
+    }
+
+    if (job.company.recruiterId !== recruiterId) {
+      throw new Error(
+        'No puedes postular candidatos a ofertas de otra empresa'
+      );
+    }
+
+    if (job.status !== JOB_STATUS.PUBLISHED) {
+      throw new Error('Esta oferta no está disponible');
+    }
+
+    const candidate = await User.findByPk(candidateId);
+    if (!candidate) {
+      throw new Error('Candidato no encontrado');
+    }
+
+    if (candidate.userType !== USER_TYPES.GRADUATE) {
+      throw new Error('Solo se pueden postular graduados');
+    }
+
+    // Verificar que no exista una postulación previa del candidato
+    const existingApplication = await Application.findOne({
+      where: { userId: candidateId, jobId },
+    });
+
+    if (existingApplication) {
+      throw new Error('El candidato ya está postulado a esta oferta');
+    }
+
+    const application = await Application.create({
+      userId: candidateId,
+      jobId,
+      coverLetter,
+      status: APPLICATION_STATUS.PENDING,
+      appliedAt: new Date(),
+    });
+
+    // Notificar al candidato
+    await NotificationService.create({
+      userId: candidateId,
+      title: 'Nueva postulación creada',
+      message: `Has sido postulado a "${job.title}" por tu reclutador`,
       type: 'info',
       eventType: 'new_application',
       relatedId: application.id,
