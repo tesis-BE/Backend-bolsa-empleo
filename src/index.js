@@ -38,13 +38,23 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/v1', routes);
 
 // Socket.IO middleware para autenticación
+const { verifyToken } = require('./utils/jwt.util');
+
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
   if (!token) {
     return next(new Error('Token no proporcionado'));
   }
-  // Verificar token aquí
-  next();
+
+  try {
+    const decoded = verifyToken(token);
+    socket.userId = decoded.id;
+    socket.userType = decoded.userType;
+    socket.companyId = decoded.companyId;
+    next();
+  } catch (error) {
+    next(new Error('Token inválido o expirado'));
+  }
 });
 
 // Socket.IO event listeners (se configurarán en socket/chat.socket.js)

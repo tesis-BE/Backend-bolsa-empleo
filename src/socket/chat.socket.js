@@ -43,6 +43,23 @@ module.exports = (io) => {
           return;
         }
 
+        // Validar longitud del mensaje
+        if (
+          !content ||
+          typeof content !== 'string' ||
+          content.trim().length === 0
+        ) {
+          socket.emit('error', { message: 'El mensaje no puede estar vacío' });
+          return;
+        }
+
+        if (content.length > 5000) {
+          socket.emit('error', {
+            message: 'El mensaje es demasiado largo (máximo 5000 caracteres)',
+          });
+          return;
+        }
+
         // Validar que el usuario pertenece a la conversación
         const conversation = await Conversation.findByPk(conversationId);
 

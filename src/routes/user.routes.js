@@ -3,7 +3,7 @@ const router = express.Router();
 const UserController = require('../controllers/user.controller');
 const { authMiddleware, roleMiddleware } = require('../middlewares');
 const { userValidator, authValidator } = require('../validators');
-const { upload } = require('../config/multer');
+const { upload, validateFileContent } = require('../config/multer');
 const { USER_TYPES } = require('../config/constants');
 
 // Todas las rutas requieren autenticación
@@ -26,11 +26,13 @@ router.get('/graduates', UserController.getGraduates.bind(UserController));
 router.post(
   '/photo',
   upload.single('photo'),
+  validateFileContent,
   UserController.uploadPhoto.bind(UserController)
 );
 router.post(
   '/cv',
   upload.single('cv'),
+  validateFileContent,
   UserController.uploadCV.bind(UserController)
 );
 

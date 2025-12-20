@@ -3,7 +3,7 @@ const router = express.Router();
 const CompanyController = require('../controllers/company.controller');
 const { authMiddleware, roleMiddleware } = require('../middlewares');
 const { companyValidator } = require('../validators');
-const { upload } = require('../config/multer');
+const { upload, validateFileContent } = require('../config/multer');
 const { USER_TYPES } = require('../config/constants');
 
 // Rutas públicas
@@ -38,6 +38,7 @@ router.post(
   '/logo',
   roleMiddleware([USER_TYPES.RECRUITER]),
   upload.single('logo'),
+  validateFileContent,
   CompanyController.uploadLogo.bind(CompanyController)
 );
 

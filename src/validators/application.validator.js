@@ -6,6 +6,7 @@ const apply = [
   body('coverLetter')
     .optional()
     .trim()
+    .escape()
     .isLength({ max: 2000 })
     .withMessage('La carta de presentación no puede exceder 2000 caracteres'),
 ];
@@ -16,6 +17,7 @@ const applyByRecruiter = [
   body('coverLetter')
     .optional()
     .trim()
+    .escape()
     .isLength({ max: 2000 })
     .withMessage('La carta de presentación no puede exceder 2000 caracteres'),
 ];
@@ -27,6 +29,7 @@ const updateStatus = [
   body('rejectionReason')
     .optional()
     .trim()
+    .escape()
     .isLength({ max: 500 })
     .withMessage('El motivo del rechazo no puede exceder 500 caracteres'),
 ];

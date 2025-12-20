@@ -30,11 +30,25 @@ const create = [
   body('salaryMax')
     .optional()
     .isInt({ min: 0 })
-    .withMessage('Salario máximo inválido'),
+    .withMessage('Salario máximo inválido')
+    .custom((value, { req }) => {
+      if (req.body.salaryMin && value < req.body.salaryMin) {
+        throw new Error('El salario máximo debe ser mayor o igual al mínimo');
+      }
+      return true;
+    }),
   body('expiresAt')
     .optional()
     .isISO8601()
-    .withMessage('Fecha de expiración inválida'),
+    .withMessage('Fecha de expiración inválida')
+    .custom((value) => {
+      const expirationDate = new Date(value);
+      const now = new Date();
+      if (expirationDate <= now) {
+        throw new Error('La fecha de expiración debe ser en el futuro');
+      }
+      return true;
+    }),
   body('skills').optional().isArray().withMessage('Skills debe ser un arreglo'),
 ];
 
@@ -70,11 +84,25 @@ const update = [
   body('salaryMax')
     .optional()
     .isInt({ min: 0 })
-    .withMessage('Salario máximo inválido'),
+    .withMessage('Salario máximo inválido')
+    .custom((value, { req }) => {
+      if (req.body.salaryMin && value < req.body.salaryMin) {
+        throw new Error('El salario máximo debe ser mayor o igual al mínimo');
+      }
+      return true;
+    }),
   body('expiresAt')
     .optional()
     .isISO8601()
-    .withMessage('Fecha de expiración inválida'),
+    .withMessage('Fecha de expiración inválida')
+    .custom((value) => {
+      const expirationDate = new Date(value);
+      const now = new Date();
+      if (expirationDate <= now) {
+        throw new Error('La fecha de expiración debe ser en el futuro');
+      }
+      return true;
+    }),
   body('skills').optional().isArray().withMessage('Skills debe ser un arreglo'),
 ];
 

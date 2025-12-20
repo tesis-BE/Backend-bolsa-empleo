@@ -4,19 +4,25 @@ const updateProfile = [
   body('firstName')
     .optional()
     .trim()
-    .isLength({ min: 2 })
-    .withMessage('El nombre debe tener al menos 2 caracteres'),
+    .escape()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('El nombre debe tener entre 2 y 50 caracteres'),
   body('lastName')
     .optional()
     .trim()
-    .isLength({ min: 2 })
-    .withMessage('El apellido debe tener al menos 2 caracteres'),
+    .escape()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('El apellido debe tener entre 2 y 50 caracteres'),
   body('phone')
     .optional()
     .matches(/^[0-9+\-\s()]+$/)
-    .withMessage('Número de teléfono inválido'),
+    .withMessage('Número de teléfono inválido')
+    .isLength({ max: 20 })
+    .withMessage('Número de teléfono demasiado largo'),
   body('bio')
     .optional()
+    .trim()
+    .escape()
     .isLength({ max: 500 })
     .withMessage('La biografía no puede exceder 500 caracteres'),
   body('linkedinUrl')
@@ -32,6 +38,7 @@ const updateProfile = [
 const addSkill = [
   body('name')
     .trim()
+    .escape()
     .notEmpty()
     .withMessage('El nombre de la habilidad es requerido')
     .isLength({ max: 100 })
@@ -45,6 +52,7 @@ const addSkill = [
 const addPortfolioLink = [
   body('title')
     .trim()
+    .escape()
     .notEmpty()
     .withMessage('El título es requerido')
     .isLength({ max: 100 })
@@ -52,6 +60,8 @@ const addPortfolioLink = [
   body('url').isURL().withMessage('URL inválida'),
   body('description')
     .optional()
+    .trim()
+    .escape()
     .isLength({ max: 255 })
     .withMessage('La descripción no puede exceder 255 caracteres'),
 ];

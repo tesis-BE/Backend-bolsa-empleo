@@ -11,6 +11,12 @@ const notificationRoutes = require('./notification.routes');
 const universityRoutes = require('./university.routes');
 const facultyRoutes = require('./faculty.routes');
 const roleRoutes = require('./role.routes');
+const savedJobRoutes = require('./savedJob.routes');
+const interviewRoutes = require('./interview.routes');
+const searchRoutes = require('./search.routes');
+const analyticsRoutes = require('./analytics.routes');
+const recommendationRoutes = require('./recommendation.routes');
+const profileRoutes = require('./profile.routes');
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
@@ -22,6 +28,12 @@ router.use('/notifications', notificationRoutes);
 router.use('/universities', universityRoutes);
 router.use('/faculties', facultyRoutes);
 router.use('/roles', roleRoutes);
+router.use('/saved-jobs', savedJobRoutes);
+router.use('/interviews', interviewRoutes);
+router.use('/search', searchRoutes);
+router.use('/analytics', analyticsRoutes);
+router.use('/recommendations', recommendationRoutes);
+router.use('/profile', profileRoutes);
 
 // Health check
 router.get('/health', (req, res) => {

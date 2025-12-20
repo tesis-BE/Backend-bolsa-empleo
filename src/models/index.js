@@ -13,6 +13,12 @@ const Permission = require('./Permission');
 const RolePermission = require('./RolePermission');
 const University = require('./University');
 const Faculty = require('./Faculty');
+const SavedJob = require('./SavedJob');
+const Interview = require('./Interview');
+const WorkExperience = require('./WorkExperience');
+const Education = require('./Education');
+const Certification = require('./Certification');
+const Project = require('./Project');
 
 // Definir relaciones
 // User -> Company (1 recruiter : 1 company)
@@ -101,6 +107,30 @@ Permission.belongsToMany(Role, {
 Faculty.belongsTo(University, { foreignKey: 'universityId', as: 'university' });
 University.hasMany(Faculty, { foreignKey: 'universityId', as: 'faculties' });
 
+User.hasMany(SavedJob, { foreignKey: 'userId', as: 'savedJobs' });
+SavedJob.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+Job.hasMany(SavedJob, { foreignKey: 'jobId', as: 'savedBy' });
+SavedJob.belongsTo(Job, { foreignKey: 'jobId', as: 'job' });
+
+Application.hasOne(Interview, { foreignKey: 'applicationId', as: 'interview' });
+Interview.belongsTo(Application, {
+  foreignKey: 'applicationId',
+  as: 'application',
+});
+
+User.hasMany(WorkExperience, { foreignKey: 'userId', as: 'workExperiences' });
+WorkExperience.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+User.hasMany(Education, { foreignKey: 'userId', as: 'educations' });
+Education.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+User.hasMany(Certification, { foreignKey: 'userId', as: 'certifications' });
+Certification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+User.hasMany(Project, { foreignKey: 'userId', as: 'projects' });
+Project.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
 module.exports = {
   User,
   Company,
@@ -117,4 +147,10 @@ module.exports = {
   RolePermission,
   University,
   Faculty,
+  SavedJob,
+  Interview,
+  WorkExperience,
+  Education,
+  Certification,
+  Project,
 };

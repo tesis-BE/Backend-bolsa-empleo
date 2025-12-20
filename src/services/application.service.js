@@ -1,5 +1,13 @@
 const BaseService = require('./base.service');
-const { Application, Job, User, Company, Conversation } = require('../models');
+const {
+  Application,
+  Job,
+  User,
+  Company,
+  Conversation,
+  Notification,
+} = require('../models');
+const sequelize = require('../config/database');
 const {
   APPLICATION_STATUS,
   JOB_STATUS,
@@ -32,106 +40,138 @@ class ApplicationService extends BaseService {
   }
 
   async apply(userId, jobId, coverLetter = null) {
-    // Verificar que el trabajo existe y está publicado
-    const job = await Job.findByPk(jobId, {
-      include: [{ model: Company, as: 'company' }],
-    });
+    const transaction = await sequelize.transaction();
 
-    if (!job) {
-      throw new Error('Oferta no encontrada');
+    try {
+      // Verificar que el trabajo existe y está publicado
+      const job = await Job.findByPk(jobId, {
+        include: [{ model: Company, as: 'company' }],
+        transaction,
+      });
+
+      if (!job) {
+        throw new Error('Oferta no encontrada');
+      }
+
+      if (job.status !== JOB_STATUS.PUBLISHED) {
+        throw new Error('Esta oferta no está disponible');
+      }
+
+      // Verificar que no haya aplicado antes
+      const existingApplication = await Application.findOne({
+        where: { userId, jobId },
+        transaction,
+      });
+
+      if (existingApplication) {
+        throw new Error('Ya has postulado a esta oferta');
+      }
+
+      // Crear aplicación
+      const application = await Application.create(
+        {
+          userId,
+          jobId,
+          coverLetter,
+          status: APPLICATION_STATUS.PENDING,
+          appliedAt: new Date(),
+        },
+        { transaction }
+      );
+
+      // Notificar al reclutador
+      await Notification.create(
+        {
+          userId: job.company.recruiterId,
+          title: 'Nueva postulación',
+          message: `Tienes una nueva postulación para "${job.title}"`,
+          type: 'info',
+          eventType: 'new_application',
+          relatedId: application.id,
+        },
+        { transaction }
+      );
+
+      await transaction.commit();
+      return application;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
     }
-
-    if (job.status !== JOB_STATUS.PUBLISHED) {
-      throw new Error('Esta oferta no está disponible');
-    }
-
-    // Verificar que no haya aplicado antes
-    const existingApplication = await Application.findOne({
-      where: { userId, jobId },
-    });
-
-    if (existingApplication) {
-      throw new Error('Ya has postulado a esta oferta');
-    }
-
-    // Crear aplicación
-    const application = await Application.create({
-      userId,
-      jobId,
-      coverLetter,
-      status: APPLICATION_STATUS.PENDING,
-      appliedAt: new Date(),
-    });
-
-    // Notificar al reclutador
-    await NotificationService.create({
-      userId: job.company.recruiterId,
-      title: 'Nueva postulación',
-      message: `Tienes una nueva postulación para "${job.title}"`,
-      type: 'info',
-      eventType: 'new_application',
-      relatedId: application.id,
-    });
-
-    return application;
   }
 
   async applyForCandidate(recruiterId, candidateId, jobId, coverLetter = null) {
-    const job = await Job.findByPk(jobId, {
-      include: [{ model: Company, as: 'company' }],
-    });
+    const transaction = await sequelize.transaction();
 
-    if (!job) {
-      throw new Error('Oferta no encontrada');
-    }
+    try {
+      const job = await Job.findByPk(jobId, {
+        include: [{ model: Company, as: 'company' }],
+        transaction,
+      });
 
-    if (job.company.recruiterId !== recruiterId) {
-      throw new Error(
-        'No puedes postular candidatos a ofertas de otra empresa'
+      if (!job) {
+        throw new Error('Oferta no encontrada');
+      }
+
+      if (job.company.recruiterId !== recruiterId) {
+        throw new Error(
+          'No puedes postular candidatos a ofertas de otra empresa'
+        );
+      }
+
+      if (job.status !== JOB_STATUS.PUBLISHED) {
+        throw new Error('Esta oferta no está disponible');
+      }
+
+      const candidate = await User.findByPk(candidateId, { transaction });
+      if (!candidate) {
+        throw new Error('Candidato no encontrado');
+      }
+
+      if (candidate.userType !== USER_TYPES.GRADUATE) {
+        throw new Error('Solo se pueden postular graduados');
+      }
+
+      // Verificar que no exista una postulación previa del candidato
+      const existingApplication = await Application.findOne({
+        where: { userId: candidateId, jobId },
+        transaction,
+      });
+
+      if (existingApplication) {
+        throw new Error('El candidato ya está postulado a esta oferta');
+      }
+
+      const application = await Application.create(
+        {
+          userId: candidateId,
+          jobId,
+          coverLetter,
+          status: APPLICATION_STATUS.PENDING,
+          appliedAt: new Date(),
+        },
+        { transaction }
       );
+
+      // Notificar al candidato
+      await Notification.create(
+        {
+          userId: candidateId,
+          title: 'Nueva postulación creada',
+          message: `Has sido postulado a "${job.title}" por tu reclutador`,
+          type: 'info',
+          eventType: 'new_application',
+          relatedId: application.id,
+        },
+        { transaction }
+      );
+
+      await transaction.commit();
+      return application;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
     }
-
-    if (job.status !== JOB_STATUS.PUBLISHED) {
-      throw new Error('Esta oferta no está disponible');
-    }
-
-    const candidate = await User.findByPk(candidateId);
-    if (!candidate) {
-      throw new Error('Candidato no encontrado');
-    }
-
-    if (candidate.userType !== USER_TYPES.GRADUATE) {
-      throw new Error('Solo se pueden postular graduados');
-    }
-
-    // Verificar que no exista una postulación previa del candidato
-    const existingApplication = await Application.findOne({
-      where: { userId: candidateId, jobId },
-    });
-
-    if (existingApplication) {
-      throw new Error('El candidato ya está postulado a esta oferta');
-    }
-
-    const application = await Application.create({
-      userId: candidateId,
-      jobId,
-      coverLetter,
-      status: APPLICATION_STATUS.PENDING,
-      appliedAt: new Date(),
-    });
-
-    // Notificar al candidato
-    await NotificationService.create({
-      userId: candidateId,
-      title: 'Nueva postulación creada',
-      message: `Has sido postulado a "${job.title}" por tu reclutador`,
-      type: 'info',
-      eventType: 'new_application',
-      relatedId: application.id,
-    });
-
-    return application;
   }
 
   async updateStatus(
@@ -141,66 +181,83 @@ class ApplicationService extends BaseService {
     rejectionReason = null,
     isAdmin = false
   ) {
-    const application = await this.findById(applicationId);
+    const transaction = await sequelize.transaction();
 
-    if (!application) {
-      throw new Error('Postulación no encontrada');
+    try {
+      const application = await this.findById(applicationId, { transaction });
+
+      if (!application) {
+        throw new Error('Postulación no encontrada');
+      }
+
+      // Verificar permisos
+      if (!isAdmin && application.job.company.recruiterId !== recruiterId) {
+        throw new Error('No tienes permiso para actualizar esta postulación');
+      }
+
+      // Actualizar estado
+      await application.update(
+        {
+          status,
+          rejectionReason:
+            status === APPLICATION_STATUS.REJECTED ? rejectionReason : null,
+        },
+        { transaction }
+      );
+
+      // Si el estado es 'revisado' o 'entrevistado', crear conversación si no existe
+      if (
+        (status === APPLICATION_STATUS.REVIEWED ||
+          status === APPLICATION_STATUS.INTERVIEWED) &&
+        !application.conversation
+      ) {
+        await Conversation.create(
+          {
+            applicationId: application.id,
+            graduateId: application.userId,
+            recruiterId: application.job.company.recruiterId,
+          },
+          { transaction }
+        );
+      }
+
+      // Notificar al graduado
+      let notificationMessage = '';
+      if (status === APPLICATION_STATUS.REVIEWED) {
+        notificationMessage = `Tu postulación para "${application.job.title}" ha sido revisada`;
+      } else if (status === APPLICATION_STATUS.INTERVIEWED) {
+        notificationMessage = `Has sido seleccionado para entrevista en "${application.job.title}"`;
+      } else if (status === APPLICATION_STATUS.ACCEPTED) {
+        notificationMessage = `¡Felicidades! Has sido aceptado para "${application.job.title}"`;
+      } else if (status === APPLICATION_STATUS.REJECTED) {
+        notificationMessage = `Tu postulación para "${application.job.title}" ha sido rechazada`;
+      }
+
+      if (notificationMessage) {
+        await Notification.create(
+          {
+            userId: application.userId,
+            title: 'Actualización de postulación',
+            message: notificationMessage,
+            type:
+              status === APPLICATION_STATUS.ACCEPTED
+                ? 'success'
+                : status === APPLICATION_STATUS.REJECTED
+                ? 'warning'
+                : 'info',
+            eventType: 'application_' + status,
+            relatedId: application.id,
+          },
+          { transaction }
+        );
+      }
+
+      await transaction.commit();
+      return application;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
     }
-
-    // Verificar permisos
-    if (!isAdmin && application.job.company.recruiterId !== recruiterId) {
-      throw new Error('No tienes permiso para actualizar esta postulación');
-    }
-
-    // Actualizar estado
-    await application.update({
-      status,
-      rejectionReason:
-        status === APPLICATION_STATUS.REJECTED ? rejectionReason : null,
-    });
-
-    // Si el estado es 'revisado' o 'entrevistado', crear conversación si no existe
-    if (
-      (status === APPLICATION_STATUS.REVIEWED ||
-        status === APPLICATION_STATUS.INTERVIEWED) &&
-      !application.conversation
-    ) {
-      await Conversation.create({
-        applicationId: application.id,
-        graduateId: application.userId,
-        recruiterId: application.job.company.recruiterId,
-      });
-    }
-
-    // Notificar al graduado
-    let notificationMessage = '';
-    if (status === APPLICATION_STATUS.REVIEWED) {
-      notificationMessage = `Tu postulación para "${application.job.title}" ha sido revisada`;
-    } else if (status === APPLICATION_STATUS.INTERVIEWED) {
-      notificationMessage = `Has sido seleccionado para entrevista en "${application.job.title}"`;
-    } else if (status === APPLICATION_STATUS.ACCEPTED) {
-      notificationMessage = `¡Felicidades! Has sido aceptado para "${application.job.title}"`;
-    } else if (status === APPLICATION_STATUS.REJECTED) {
-      notificationMessage = `Tu postulación para "${application.job.title}" ha sido rechazada`;
-    }
-
-    if (notificationMessage) {
-      await NotificationService.create({
-        userId: application.userId,
-        title: 'Actualización de postulación',
-        message: notificationMessage,
-        type:
-          status === APPLICATION_STATUS.ACCEPTED
-            ? 'success'
-            : status === APPLICATION_STATUS.REJECTED
-            ? 'warning'
-            : 'info',
-        eventType: 'application_' + status,
-        relatedId: application.id,
-      });
-    }
-
-    return application;
   }
 
   async cancel(applicationId, userId) {
