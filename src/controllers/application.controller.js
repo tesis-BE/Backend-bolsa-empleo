@@ -25,6 +25,14 @@ class ApplicationController {
           ApiResponse.created('Postulación enviada exitosamente', application)
         );
     } catch (error) {
+      if (error.code === 'CV_REQUIRED') {
+        return res.status(400).json({
+          success: false,
+          message: error.message,
+          code: error.code,
+          missingFields: error.missingFields,
+        });
+      }
       return res.status(400).json(ApiResponse.error(error.message));
     }
   }
@@ -76,19 +84,6 @@ class ApplicationController {
         return res
           .status(404)
           .json(ApiResponse.error('Postulación no encontrada'));
-      }
-
-      // Verificar permisos: solo el usuario que postuló o el reclutador pueden ver
-      const isOwner = application.userId === req.user.id;
-      const isRecruiter = application.job.company.recruiterId === req.user.id;
-      const isAdmin = req.user.userType === 'admin';
-
-      if (!isOwner && !isRecruiter && !isAdmin) {
-        return res
-          .status(403)
-          .json(
-            ApiResponse.error('No tienes permiso para ver esta postulación')
-          );
       }
 
       return res

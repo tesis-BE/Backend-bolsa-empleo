@@ -1,61 +1,38 @@
 const { body } = require('express-validator');
+const { COMPANY_STATUS } = require('../config/constants');
 
 const create = [
   body('name')
     .trim()
-    .escape()
-    .isLength({ min: 2, max: 255 })
-    .withMessage('El nombre de la empresa debe tener entre 2 y 255 caracteres'),
-  body('description')
-    .optional()
-    .trim()
-    .escape()
-    .isLength({ min: 10, max: 2000 })
-    .withMessage('La descripción debe tener entre 10 y 2000 caracteres'),
-  body('industry')
-    .optional()
-    .trim()
-    .escape()
-    .isLength({ min: 2, max: 100 })
-    .withMessage('La industria debe tener entre 2 y 100 caracteres'),
-  body('website').optional().isURL().withMessage('URL de sitio web inválida'),
-  body('location')
-    .optional()
-    .trim()
-    .escape()
-    .isLength({ min: 2, max: 255 })
-    .withMessage('La ubicación debe tener entre 2 y 255 caracteres'),
+    .notEmpty()
+    .withMessage('El nombre de la empresa es requerido'),
+  body('description').optional().trim(),
+  body('industry').optional().trim(),
+  body('website').optional(),
+  body('location').optional().trim(),
 ];
 
 const update = [
-  body('name')
-    .optional()
-    .trim()
-    .escape()
-    .isLength({ min: 2, max: 255 })
-    .withMessage('El nombre de la empresa debe tener entre 2 y 255 caracteres'),
-  body('description')
-    .optional()
-    .trim()
-    .escape()
-    .isLength({ min: 10, max: 2000 })
-    .withMessage('La descripción debe tener entre 10 y 2000 caracteres'),
-  body('industry')
-    .optional()
-    .trim()
-    .escape()
-    .isLength({ min: 2, max: 100 })
-    .withMessage('La industria debe tener entre 2 y 100 caracteres'),
-  body('website').optional().isURL().withMessage('URL de sitio web inválida'),
-  body('location')
-    .optional()
-    .trim()
-    .escape()
-    .isLength({ min: 2, max: 255 })
-    .withMessage('La ubicación debe tener entre 2 y 255 caracteres'),
+  body('name').optional().trim(),
+  body('description').optional().trim(),
+  body('industry').optional().trim(),
+  body('website').optional(),
+  body('location').optional().trim(),
+];
+
+const updateStatus = [
+  body('status')
+    .isIn(Object.values(COMPANY_STATUS))
+    .withMessage('Estado de empresa inválido'),
+];
+
+const addRecruiter = [
+  body('userId').isInt({ min: 1 }).withMessage('ID de usuario inválido'),
 ];
 
 module.exports = {
   create,
   update,
+  updateStatus,
+  addRecruiter,
 };

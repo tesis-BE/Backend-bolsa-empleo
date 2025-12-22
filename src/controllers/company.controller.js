@@ -37,7 +37,7 @@ class CompanyController extends BaseController {
       if (!company) {
         return res
           .status(404)
-          .json(ApiResponse.error('No tienes una empresa registrada'));
+          .json(ApiResponse.error('No perteneces a ninguna empresa'));
       }
 
       return res
@@ -57,19 +57,82 @@ class CompanyController extends BaseController {
           .json(ApiResponse.error('Error de validación', errors.array()));
       }
 
-      // Obtener la empresa del reclutador
       const company = await CompanyService.getByRecruiter(req.user.id);
 
       if (!company) {
         return res
           .status(404)
-          .json(ApiResponse.error('No tienes una empresa registrada'));
+          .json(ApiResponse.error('No perteneces a ninguna empresa'));
       }
 
-      const updatedCompany = await CompanyService.update(company.id, req.body);
+      const updatedCompany = await CompanyService.updateCompany(
+        company.id,
+        req.user.id,
+        req.body
+      );
       return res
         .status(200)
         .json(ApiResponse.success('Empresa actualizada', updatedCompany));
+    } catch (error) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
+
+  async addRecruiter(req, res) {
+    try {
+      const { userId } = req.body;
+      const company = await CompanyService.getByRecruiter(req.user.id);
+
+      if (!company) {
+        return res
+          .status(404)
+          .json(ApiResponse.error('No perteneces a ninguna empresa'));
+      }
+
+      const recruiter = await CompanyService.addRecruiter(
+        company.id,
+        userId,
+        req.user.id
+      );
+      return res
+        .status(200)
+        .json(ApiResponse.success('Reclutador añadido', recruiter));
+    } catch (error) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
+
+  async removeRecruiter(req, res) {
+    try {
+      const { userId } = req.params;
+      const company = await CompanyService.getByRecruiter(req.user.id);
+
+      if (!company) {
+        return res
+          .status(404)
+          .json(ApiResponse.error('No perteneces a ninguna empresa'));
+      }
+
+      await CompanyService.removeRecruiter(company.id, userId, req.user.id);
+      return res.status(200).json(ApiResponse.success('Reclutador removido'));
+    } catch (error) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
+
+  async updateStatus(req, res) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      const company = await CompanyService.updateStatus(
+        id,
+        status,
+        req.user.id
+      );
+      return res
+        .status(200)
+        .json(ApiResponse.success('Estado actualizado', company));
     } catch (error) {
       return res.status(400).json(ApiResponse.error(error.message));
     }
@@ -83,23 +146,20 @@ class CompanyController extends BaseController {
           .json(ApiResponse.error('No se proporcionó ningún archivo'));
       }
 
-      // Obtener la empresa del reclutador
       const company = await CompanyService.getByRecruiter(req.user.id);
 
       if (!company) {
         return res
           .status(404)
-          .json(ApiResponse.error('No tienes una empresa registrada'));
+          .json(ApiResponse.error('No perteneces a ninguna empresa'));
       }
 
       await FileService.updateCompanyLogo(company.id, req.user.id, req.file);
-      return res
-        .status(200)
-        .json(
-          ApiResponse.success('Logo actualizado', {
-            url: `/uploads/${req.file.filename}`,
-          })
-        );
+      return res.status(200).json(
+        ApiResponse.success('Logo actualizado', {
+          url: `/uploads/${req.file.filename}`,
+        })
+      );
     } catch (error) {
       return res.status(400).json(ApiResponse.error(error.message));
     }

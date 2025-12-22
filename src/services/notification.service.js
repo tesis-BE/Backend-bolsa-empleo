@@ -66,7 +66,41 @@ class NotificationService extends BaseService {
   }
 
   async create(data) {
-    return Notification.create(data);
+    const notification = await Notification.create(data);
+
+    // Enviar notificación en tiempo real via WebSocket si está disponible
+    if (global.notificationSocket && notification.userId) {
+      try {
+        await global.notificationSocket.sendNotification(
+          notification.userId,
+          notification
+        );
+      } catch (error) {
+        console.error('Error enviando notificación en tiempo real:', error);
+      }
+    }
+
+    return notification;
+  }
+
+  async createBulk(notifications) {
+    const created = await Notification.bulkCreate(notifications);
+
+    // Enviar notificaciones en tiempo real
+    if (global.notificationSocket) {
+      for (const notification of created) {
+        try {
+          await global.notificationSocket.sendNotification(
+            notification.userId,
+            notification
+          );
+        } catch (error) {
+          console.error('Error enviando notificación en tiempo real:', error);
+        }
+      }
+    }
+
+    return created;
   }
 }
 

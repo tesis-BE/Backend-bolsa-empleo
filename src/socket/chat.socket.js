@@ -1,4 +1,12 @@
 const { Message, Conversation, User } = require('../models');
+const { createSocketRateLimiter } = require('../utils/socketRateLimiter.util');
+
+// Rate limiter: 20 mensajes por minuto
+const messageLimiter = createSocketRateLimiter({
+  maxRequests: 20,
+  windowMs: 60000,
+  blockDurationMs: 300000,
+});
 
 module.exports = (io) => {
   io.on('connection', (socket) => {
@@ -37,74 +45,86 @@ module.exports = (io) => {
 
     // Enviar mensaje
     socket.on('send_message', async ({ conversationId, content }) => {
-      try {
-        if (!socket.userId) {
-          socket.emit('error', { message: 'No autenticado' });
-          return;
+      // Aplicar rate limiting
+      messageLimiter.check(socket, async (result) => {
+        if (!result.allowed) {
+          return; // El error ya fue emitido por el limiter
         }
 
-        // Validar longitud del mensaje
-        if (
-          !content ||
-          typeof content !== 'string' ||
-          content.trim().length === 0
-        ) {
-          socket.emit('error', { message: 'El mensaje no puede estar vacío' });
-          return;
-        }
+        try {
+          if (!socket.userId) {
+            socket.emit('error', { message: 'No autenticado' });
+            return;
+          }
 
-        if (content.length > 5000) {
-          socket.emit('error', {
-            message: 'El mensaje es demasiado largo (máximo 5000 caracteres)',
+          // Validar longitud del mensaje
+          if (
+            !content ||
+            typeof content !== 'string' ||
+            content.trim().length === 0
+          ) {
+            socket.emit('error', {
+              message: 'El mensaje no puede estar vacío',
+            });
+            return;
+          }
+
+          if (content.length > 5000) {
+            socket.emit('error', {
+              message: 'El mensaje es demasiado largo (máximo 5000 caracteres)',
+            });
+            return;
+          }
+
+          // Validar que el usuario pertenece a la conversación
+          const conversation = await Conversation.findByPk(conversationId);
+
+          if (!conversation) {
+            socket.emit('error', { message: 'Conversación no encontrada' });
+            return;
+          }
+
+          if (
+            conversation.graduateId !== socket.userId &&
+            conversation.recruiterId !== socket.userId
+          ) {
+            socket.emit('error', { message: 'Acceso denegado' });
+            return;
+          }
+
+          // Crear mensaje
+          const message = await Message.create({
+            conversationId,
+            senderId: socket.userId,
+            content,
           });
-          return;
+
+          // Obtener datos del remitente
+          const sender = await User.findByPk(socket.userId, {
+            attributes: ['id', 'firstName', 'lastName', 'profilePhotoId'],
+          });
+
+          const messageData = {
+            id: message.id,
+            conversationId,
+            senderId: socket.userId,
+            senderName: `${sender.firstName} ${sender.lastName}`,
+            content,
+            createdAt: message.createdAt,
+          };
+
+          // Actualizar última actividad de la conversación
+          await conversation.update({ lastMessageAt: new Date() });
+
+          // Emitir a ambos usuarios en la conversación
+          io.to(`conversation_${conversationId}`).emit(
+            'receive_message',
+            messageData
+          );
+        } catch (error) {
+          socket.emit('error', { message: error.message });
         }
-
-        // Validar que el usuario pertenece a la conversación
-        const conversation = await Conversation.findByPk(conversationId);
-
-        if (!conversation) {
-          socket.emit('error', { message: 'Conversación no encontrada' });
-          return;
-        }
-
-        if (
-          conversation.graduateId !== socket.userId &&
-          conversation.recruiterId !== socket.userId
-        ) {
-          socket.emit('error', { message: 'Acceso denegado' });
-          return;
-        }
-
-        // Crear mensaje
-        const message = await Message.create({
-          conversationId,
-          senderId: socket.userId,
-          content,
-        });
-
-        // Obtener datos del remitente
-        const sender = await User.findByPk(socket.userId, {
-          attributes: ['id', 'firstName', 'lastName', 'profilePhotoId'],
-        });
-
-        const messageData = {
-          id: message.id,
-          conversationId,
-          senderId: socket.userId,
-          senderName: `${sender.firstName} ${sender.lastName}`,
-          content,
-          createdAt: message.createdAt,
-        };
-
-        // Emitir a ambos usuarios en la conversación
-        io.to(`conversation_${conversationId}`).emit(
-          'receive_message',
-          messageData
-        );
-      } catch (error) {
-        socket.emit('error', { message: error.message });
-      }
+      });
     });
 
     // Usuario está escribiendo
@@ -152,6 +172,15 @@ module.exports = (io) => {
     // Desconexión
     socket.on('disconnect', () => {
       console.log(`Usuario desconectado: ${socket.id}`);
+
+      // Notificar a la conversación que el usuario se desconectó
+      if (socket.conversationId) {
+        socket.broadcast
+          .to(`conversation_${socket.conversationId}`)
+          .emit('user_disconnected', {
+            userId: socket.userId,
+          });
+      }
     });
   });
 };

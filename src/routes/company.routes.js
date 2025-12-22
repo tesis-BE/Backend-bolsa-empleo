@@ -6,40 +6,51 @@ const { companyValidator } = require('../validators');
 const { upload, validateFileContent } = require('../config/multer');
 const { USER_TYPES } = require('../config/constants');
 
-// Rutas públicas
 router.get('/', CompanyController.findAll.bind(CompanyController));
 router.get('/:id', CompanyController.findById.bind(CompanyController));
 router.get('/:id/jobs', CompanyController.getWithJobs.bind(CompanyController));
 
-// Rutas protegidas para reclutadores
 router.use(authMiddleware);
 
 router.post(
   '/',
-  roleMiddleware([USER_TYPES.RECRUITER]),
   companyValidator.create,
   CompanyController.create.bind(CompanyController)
 );
 
 router.get(
   '/my/company',
-  roleMiddleware([USER_TYPES.RECRUITER]),
   CompanyController.getMyCompany.bind(CompanyController)
 );
 
 router.put(
   '/',
-  roleMiddleware([USER_TYPES.RECRUITER]),
   companyValidator.update,
   CompanyController.update.bind(CompanyController)
 );
 
 router.post(
   '/logo',
-  roleMiddleware([USER_TYPES.RECRUITER]),
   upload.single('logo'),
   validateFileContent,
   CompanyController.uploadLogo.bind(CompanyController)
+);
+
+router.post(
+  '/recruiters',
+  companyValidator.addRecruiter,
+  CompanyController.addRecruiter.bind(CompanyController)
+);
+
+router.delete(
+  '/recruiters/:userId',
+  CompanyController.removeRecruiter.bind(CompanyController)
+);
+
+router.patch(
+  '/:id/status',
+  companyValidator.updateStatus,
+  CompanyController.updateStatus.bind(CompanyController)
 );
 
 module.exports = router;

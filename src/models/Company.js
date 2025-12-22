@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const { COMPANY_STATUS } = require('../config/constants');
 
 const Company = sequelize.define(
   'Company',
@@ -43,12 +44,16 @@ const Company = sequelize.define(
     },
     recruiterId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      unique: true,
+      allowNull: true,
     },
-    isActive: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true,
+    status: {
+      type: DataTypes.ENUM(
+        COMPANY_STATUS.PENDING,
+        COMPANY_STATUS.ACTIVE,
+        COMPANY_STATUS.INACTIVE,
+        COMPANY_STATUS.REJECTED
+      ),
+      defaultValue: COMPANY_STATUS.ACTIVE,
     },
     createdAt: {
       type: DataTypes.DATE,

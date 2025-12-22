@@ -13,42 +13,20 @@ router.get('/:id', JobController.findById.bind(JobController));
 router.use(authMiddleware);
 
 // Para reclutadores
-router.post(
-  '/',
-  roleMiddleware([USER_TYPES.RECRUITER, USER_TYPES.ADMIN]),
-  jobValidator.create,
-  JobController.create.bind(JobController)
-);
+router.post('/', jobValidator.create, JobController.create.bind(JobController));
 
-router.get(
-  '/my/jobs',
-  roleMiddleware([USER_TYPES.RECRUITER]),
-  JobController.getMyJobs.bind(JobController)
-);
+router.get('/my/jobs', JobController.getMyJobs.bind(JobController));
 
 router.put(
   '/:id',
-  roleMiddleware([USER_TYPES.RECRUITER, USER_TYPES.ADMIN]),
   jobValidator.update,
   JobController.update.bind(JobController)
 );
 
-router.patch(
-  '/:id/publish',
-  roleMiddleware([USER_TYPES.RECRUITER, USER_TYPES.ADMIN]),
-  JobController.publish.bind(JobController)
-);
+router.patch('/:id/publish', JobController.publish.bind(JobController));
 
-router.patch(
-  '/:id/close',
-  roleMiddleware([USER_TYPES.RECRUITER, USER_TYPES.ADMIN]),
-  JobController.close.bind(JobController)
-);
+router.patch('/:id/close', JobController.close.bind(JobController));
 
-router.delete(
-  '/:id',
-  roleMiddleware([USER_TYPES.RECRUITER, USER_TYPES.ADMIN]),
-  JobController.delete.bind(JobController)
-);
+router.delete('/:id', JobController.delete.bind(JobController));
 
 module.exports = router;

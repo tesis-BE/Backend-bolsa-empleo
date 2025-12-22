@@ -3,35 +3,20 @@ const { APPLICATION_STATUS } = require('../config/constants');
 
 const apply = [
   body('jobId').isInt({ min: 1 }).withMessage('ID de trabajo inválido'),
-  body('coverLetter')
-    .optional()
-    .trim()
-    .escape()
-    .isLength({ max: 2000 })
-    .withMessage('La carta de presentación no puede exceder 2000 caracteres'),
+  body('coverLetter').optional().trim(),
 ];
 
 const applyByRecruiter = [
   body('jobId').isInt({ min: 1 }).withMessage('ID de trabajo inválido'),
   body('userId').isInt({ min: 1 }).withMessage('ID de candidato inválido'),
-  body('coverLetter')
-    .optional()
-    .trim()
-    .escape()
-    .isLength({ max: 2000 })
-    .withMessage('La carta de presentación no puede exceder 2000 caracteres'),
+  body('coverLetter').optional().trim(),
 ];
 
 const updateStatus = [
   body('status')
     .isIn(Object.values(APPLICATION_STATUS))
     .withMessage('Estado inválido'),
-  body('rejectionReason')
-    .optional()
-    .trim()
-    .escape()
-    .isLength({ max: 500 })
-    .withMessage('El motivo del rechazo no puede exceder 500 caracteres'),
+  body('rejectionReason').optional().trim(),
 ];
 
 module.exports = {

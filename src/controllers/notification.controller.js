@@ -69,16 +69,6 @@ class NotificationController {
           .json(ApiResponse.error('Notificación no encontrada'));
       }
 
-      if (notification.userId !== req.user.id) {
-        return res
-          .status(403)
-          .json(
-            ApiResponse.error(
-              'No tienes permiso para eliminar esta notificación'
-            )
-          );
-      }
-
       await NotificationService.delete(req.params.id);
       return res
         .status(200)

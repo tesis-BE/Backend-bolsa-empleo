@@ -1,9 +1,9 @@
 const BaseController = require('./base.controller');
-const FacultyService = require('../services/faculty.service');
+const facultyService = require('../services/faculty.service');
 
 class FacultyController extends BaseController {
   constructor() {
-    super(new FacultyService(), 'Facultad');
+    super(facultyService, 'Facultad');
   }
 
   async getAll(req, res, next) {

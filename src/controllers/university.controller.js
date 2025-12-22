@@ -1,9 +1,9 @@
 const BaseController = require('./base.controller');
-const UniversityService = require('../services/university.service');
+const universityService = require('../services/university.service');
 
 class UniversityController extends BaseController {
   constructor() {
-    super(new UniversityService(), 'Universidad');
+    super(universityService, 'Universidad');
   }
 
   async getAll(req, res, next) {

@@ -57,8 +57,12 @@ io.use((socket, next) => {
   }
 });
 
-// Socket.IO event listeners (se configurarán en socket/chat.socket.js)
+// Socket.IO event listeners
 require('./socket/chat.socket')(io);
+const notificationSocket = require('./socket/notification.socket')(io);
+
+// Hacer disponible el socket de notificaciones globalmente
+global.notificationSocket = notificationSocket;
 
 // Error handling
 app.use(errorHandler);

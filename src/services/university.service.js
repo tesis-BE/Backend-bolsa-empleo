@@ -28,4 +28,4 @@ class UniversityService extends BaseService {
   }
 }
 
-module.exports = UniversityService;
+module.exports = new UniversityService();

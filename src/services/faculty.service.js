@@ -38,4 +38,4 @@ class FacultyService extends BaseService {
   }
 }
 
-module.exports = FacultyService;
+module.exports = new FacultyService();

@@ -3,10 +3,14 @@ const { Op } = require('sequelize');
 
 class AnalyticsService {
   async getRecruiterAnalytics(recruiterId) {
-    const company = await Company.findOne({ where: { recruiterId } });
+    const user = await User.findByPk(recruiterId);
+    if (!user || !user.companyId) {
+      throw new Error('No perteneces a ninguna empresa');
+    }
 
+    const company = await Company.findByPk(user.companyId);
     if (!company) {
-      throw new Error('No tienes una empresa registrada');
+      throw new Error('Empresa no encontrada');
     }
 
     const now = new Date();
@@ -249,10 +253,14 @@ class AnalyticsService {
   }
 
   async getJobsAboutToExpire(recruiterId, daysThreshold = 7) {
-    const company = await Company.findOne({ where: { recruiterId } });
+    const user = await User.findByPk(recruiterId);
+    if (!user || !user.companyId) {
+      throw new Error('No perteneces a ninguna empresa');
+    }
 
+    const company = await Company.findByPk(user.companyId);
     if (!company) {
-      throw new Error('No tienes una empresa registrada');
+      throw new Error('Empresa no encontrada');
     }
 
     const threshold = new Date();
@@ -286,10 +294,14 @@ class AnalyticsService {
   }
 
   async getJobsWithoutApplications(recruiterId) {
-    const company = await Company.findOne({ where: { recruiterId } });
+    const user = await User.findByPk(recruiterId);
+    if (!user || !user.companyId) {
+      throw new Error('No perteneces a ninguna empresa');
+    }
 
+    const company = await Company.findByPk(user.companyId);
     if (!company) {
-      throw new Error('No tienes una empresa registrada');
+      throw new Error('Empresa no encontrada');
     }
 
     return await Job.findAll({

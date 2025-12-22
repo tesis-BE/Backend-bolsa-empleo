@@ -130,16 +130,19 @@ class FileService extends BaseService {
   }
 
   async updateCompanyLogo(companyId, recruiterId, file) {
-    // Verificar que el recruiter pertenece a la empresa
     const company = await Company.findByPk(companyId);
 
-    if (!company || company.recruiterId !== recruiterId) {
+    if (!company) {
+      throw new Error('Empresa no encontrada');
+    }
+
+    const user = await User.findByPk(recruiterId);
+    if (!user || user.companyId !== companyId) {
       throw new Error(
         'No tienes permiso para actualizar el logo de esta empresa'
       );
     }
 
-    // Eliminar logo anterior si existe
     const existingLogo = await File.findOne({
       where: {
         entityType: 'company',

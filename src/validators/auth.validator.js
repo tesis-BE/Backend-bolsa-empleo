@@ -13,22 +13,14 @@ const register = [
     .normalizeEmail()
     .withMessage('Email institucional inválido'),
   body('password')
-    .isLength({ min: 8, max: 128 })
-    .withMessage('La contraseña debe tener entre 8 y 128 caracteres')
-    .matches(/[A-Z]/)
-    .withMessage('La contraseña debe contener al menos una mayúscula')
-    .matches(/[0-9]/)
-    .withMessage('La contraseña debe contener al menos un número')
-    .matches(/[!@#$%^&*(),.?":{}|<>]/)
-    .withMessage('La contraseña debe contener al menos un carácter especial'),
+    .isLength({ min: 6 })
+    .withMessage('La contraseña debe tener al menos 6 caracteres'),
   body('firstName')
     .trim()
-    .escape()
     .isLength({ min: 2, max: 50 })
     .withMessage('El nombre debe tener entre 2 y 50 caracteres'),
   body('lastName')
     .trim()
-    .escape()
     .isLength({ min: 2, max: 50 })
     .withMessage('El apellido debe tener entre 2 y 50 caracteres'),
   body('userType')
@@ -47,16 +39,8 @@ const changePassword = [
     .notEmpty()
     .withMessage('La contraseña actual es requerida'),
   body('newPassword')
-    .isLength({ min: 8, max: 128 })
-    .withMessage('La nueva contraseña debe tener entre 8 y 128 caracteres')
-    .matches(/[A-Z]/)
-    .withMessage('La nueva contraseña debe contener al menos una mayúscula')
-    .matches(/[0-9]/)
-    .withMessage('La nueva contraseña debe contener al menos un número')
-    .matches(/[!@#$%^&*(),.?":{}|<>]/)
-    .withMessage(
-      'La nueva contraseña debe contener al menos un carácter especial'
-    ),
+    .isLength({ min: 6 })
+    .withMessage('La nueva contraseña debe tener al menos 6 caracteres'),
 ];
 
 module.exports = {

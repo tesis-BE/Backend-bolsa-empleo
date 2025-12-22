@@ -6,6 +6,14 @@ module.exports = {
     ADMIN: 'admin',
   },
 
+  // Company Status
+  COMPANY_STATUS: {
+    PENDING: 'pendiente',
+    ACTIVE: 'activo',
+    INACTIVE: 'inactivo',
+    REJECTED: 'rechazado',
+  },
+
   // Job Status (español)
   JOB_STATUS: {
     DRAFT: 'borrador',

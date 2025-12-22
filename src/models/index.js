@@ -21,9 +21,13 @@ const Certification = require('./Certification');
 const Project = require('./Project');
 
 // Definir relaciones
-// User -> Company (1 recruiter : 1 company)
-Company.belongsTo(User, { foreignKey: 'recruiterId', as: 'recruiter' });
-User.hasOne(Company, { foreignKey: 'recruiterId', as: 'company' });
+// Company -> User (1 company owner: recruiterId, N members via User.companyId)
+Company.belongsTo(User, { foreignKey: 'recruiterId', as: 'owner' });
+User.hasOne(Company, { foreignKey: 'recruiterId', as: 'ownedCompany' });
+
+// User -> Company (N:1 - múltiples reclutadores por empresa)
+User.belongsTo(Company, { foreignKey: 'companyId', as: 'company' });
+Company.hasMany(User, { foreignKey: 'companyId', as: 'recruiters' });
 
 // Company -> Job (1:N)
 Job.belongsTo(Company, { foreignKey: 'companyId', as: 'company' });

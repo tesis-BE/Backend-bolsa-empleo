@@ -65,10 +65,6 @@ class InterviewService extends BaseService {
       throw new Error('Entrevista no encontrada');
     }
 
-    if (interview.application.userId !== userId) {
-      throw new Error('No tienes permiso para confirmar esta entrevista');
-    }
-
     if (
       !interview.proposedDates.some(
         (date) => new Date(date).getTime() === new Date(selectedDate).getTime()
@@ -81,14 +77,16 @@ class InterviewService extends BaseService {
     interview.status = 'confirmed';
     await interview.save();
 
-    await notificationService.create({
-      userId: interview.application.job.company.recruiterId,
-      eventType: 'interview_confirmed',
-      title: 'Entrevista confirmada',
-      message: `${interview.application.user.firstName} ha confirmado la entrevista`,
-      relatedId: interview.id,
-      link: `/applications/${interview.applicationId}`,
-    });
+    if (interview.application.job.company?.recruiterId) {
+      await notificationService.create({
+        userId: interview.application.job.company.recruiterId,
+        eventType: 'interview_confirmed',
+        title: 'Entrevista confirmada',
+        message: `${interview.application.user.firstName} ha confirmado la entrevista`,
+        relatedId: interview.id,
+        link: `/applications/${interview.applicationId}`,
+      });
+    }
 
     return interview;
   }
@@ -139,11 +137,11 @@ class InterviewService extends BaseService {
     return interview;
   }
 
-  async getUpcomingInterviews(userId, userType) {
+  async getUpcomingInterviews(userId, userType, companyId = null) {
     const whereClause =
       userType === 'graduate'
         ? { '$application.userId$': userId }
-        : { '$application.job.company.recruiterId$': userId };
+        : { '$application.job.companyId$': companyId };
 
     return await Interview.findAll({
       where: {
