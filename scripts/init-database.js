@@ -106,7 +106,7 @@ async function initializeDatabase() {
       const adminUser = await User.create({
         username: 'fabricio.zavala',
         email: 'fabriciozavala13@gmail.com',
-        personalEmail: 'fabriciozavala13@gmail.com',
+        institutionalEmail: 'fabriciozavala@est.umss.edu',
         password: hashedPassword,
         firstName: 'Fabricio',
         lastName: 'Zavala',

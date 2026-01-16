@@ -14,10 +14,14 @@ class WorkExperienceService extends BaseService {
   }
 
   async createExperience(userId, data) {
-    return await WorkExperience.create({
+    const payload = {
       userId,
       ...data,
-    });
+      // Aceptar companyName desde el frontend y mapear a company
+      company: data.company ?? data.companyName,
+    };
+
+    return await WorkExperience.create(payload);
   }
 
   async updateExperience(experienceId, userId, data) {
@@ -29,7 +33,13 @@ class WorkExperienceService extends BaseService {
       throw new Error('Experiencia no encontrada');
     }
 
-    await experience.update(data);
+    const payload = {
+      ...data,
+      // Mantener compatibilidad con companyName
+      company: data.company ?? data.companyName ?? experience.company,
+    };
+
+    await experience.update(payload);
     return experience;
   }
 

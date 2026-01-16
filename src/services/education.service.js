@@ -14,10 +14,12 @@ class EducationService extends BaseService {
   }
 
   async createEducation(userId, data) {
-    return await Education.create({
+    const payload = {
       userId,
       ...data,
-    });
+      institution: data.institution ?? data.institutionName,
+    };
+    return await Education.create(payload);
   }
 
   async updateEducation(educationId, userId, data) {
@@ -29,7 +31,11 @@ class EducationService extends BaseService {
       throw new Error('Educación no encontrada');
     }
 
-    await education.update(data);
+    const payload = {
+      ...data,
+      institution: data.institution ?? data.institutionName ?? education.institution,
+    };
+    await education.update(payload);
     return education;
   }
 

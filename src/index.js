@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -13,26 +14,42 @@ const routes = require('./routes');
 
 const app = express();
 const server = http.createServer(app);
+
+// CORS abierto para desarrollo
+const corsOptions = {
+  origin: '*',
+  credentials: false,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
 const io = new Server(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
-    credentials: true,
+    origin: '*',
+    credentials: false,
   },
 });
 
 // Middlewares globales
-app.use(helmet());
+app.use(cors(corsOptions));
+
+// Helmet con configuración que permite recursos cross-origin
 app.use(
-  cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
-    credentials: true,
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    crossOriginEmbedderPolicy: false,
   })
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Servir archivos estáticos
-app.use('/uploads', express.static('uploads'));
+// Servir archivos estáticos con headers CORS explícitos
+app.use('/uploads', (req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+}, express.static(path.join(__dirname, '..', 'uploads')));
 
 // Rutas de la API
 app.use('/api/v1', routes);

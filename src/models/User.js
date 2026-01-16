@@ -19,18 +19,18 @@ const User = sequelize.define(
         isEmail: true,
       },
     },
-    personalEmail: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      validate: {
-        isEmail: true,
-      },
-    },
     institutionalEmail: {
       type: DataTypes.STRING,
       allowNull: true,
       validate: {
-        isEmail: true,
+        isEmail: {
+          msg: 'El correo institucional debe ser válido',
+        },
+        isValidOrEmpty(value) {
+          if (value && value.trim() === '') {
+            throw new Error('El correo institucional no puede estar vacío');
+          }
+        },
       },
     },
     password: {

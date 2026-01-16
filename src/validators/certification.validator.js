@@ -38,7 +38,7 @@ const certificationValidator = {
       .isLength({ max: 255 })
       .withMessage('El ID de credencial no puede exceder 255 caracteres'),
     body('credentialUrl')
-      .optional()
+      .optional({ nullable: true, checkFalsy: true })
       .isURL()
       .withMessage('La URL de credencial debe ser válida'),
     body('description')
@@ -86,7 +86,7 @@ const certificationValidator = {
       .isLength({ max: 255 })
       .withMessage('El ID de credencial no puede exceder 255 caracteres'),
     body('credentialUrl')
-      .optional()
+      .optional({ nullable: true, checkFalsy: true })
       .isURL()
       .withMessage('La URL de credencial debe ser válida'),
     body('description')

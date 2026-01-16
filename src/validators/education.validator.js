@@ -3,23 +3,23 @@ const { body, param } = require('express-validator');
 const educationValidator = {
   create: [
     body('institution')
-      .notEmpty()
-      .withMessage('La institución es requerida')
+      .optional({ nullable: true, checkFalsy: true })
+      .isLength({ max: 255 })
+      .withMessage('La institución no puede exceder 255 caracteres'),
+    body('institutionName')
+      .optional({ nullable: true, checkFalsy: true })
       .isLength({ max: 255 })
       .withMessage('La institución no puede exceder 255 caracteres'),
     body('degree')
-      .notEmpty()
-      .withMessage('El título es requerido')
+      .optional({ nullable: true, checkFalsy: true })
       .isLength({ max: 255 })
       .withMessage('El título no puede exceder 255 caracteres'),
     body('fieldOfStudy')
-      .notEmpty()
-      .withMessage('El campo de estudio es requerido')
+      .optional({ nullable: true, checkFalsy: true })
       .isLength({ max: 255 })
       .withMessage('El campo de estudio no puede exceder 255 caracteres'),
     body('startDate')
-      .notEmpty()
-      .withMessage('La fecha de inicio es requerida')
+      .optional({ nullable: true, checkFalsy: true })
       .isISO8601()
       .withMessage('Formato de fecha inválido'),
     body('endDate')
@@ -55,19 +55,23 @@ const educationValidator = {
   update: [
     param('id').isInt().withMessage('ID inválido'),
     body('institution')
-      .optional()
+      .optional({ nullable: true, checkFalsy: true })
+      .isLength({ max: 255 })
+      .withMessage('La institución no puede exceder 255 caracteres'),
+    body('institutionName')
+      .optional({ nullable: true, checkFalsy: true })
       .isLength({ max: 255 })
       .withMessage('La institución no puede exceder 255 caracteres'),
     body('degree')
-      .optional()
+      .optional({ nullable: true, checkFalsy: true })
       .isLength({ max: 255 })
       .withMessage('El título no puede exceder 255 caracteres'),
     body('fieldOfStudy')
-      .optional()
+      .optional({ nullable: true, checkFalsy: true })
       .isLength({ max: 255 })
       .withMessage('El campo de estudio no puede exceder 255 caracteres'),
     body('startDate')
-      .optional()
+      .optional({ nullable: true, checkFalsy: true })
       .isISO8601()
       .withMessage('Formato de fecha inválido'),
     body('endDate')

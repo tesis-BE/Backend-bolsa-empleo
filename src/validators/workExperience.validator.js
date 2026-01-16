@@ -2,6 +2,7 @@ const { body, param } = require('express-validator');
 
 const workExperienceValidator = {
   create: [
+    body('company').optional(),
     body('companyName')
       .notEmpty()
       .withMessage('El nombre de la empresa es requerido')

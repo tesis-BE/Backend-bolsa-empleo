@@ -14,6 +14,13 @@ class ProjectService extends BaseService {
   }
 
   async createProject(userId, data) {
+    // Convertir technologies de string a array si es necesario
+    if (data.technologies && typeof data.technologies === 'string') {
+      data.technologies = data.technologies
+        .split(/\s+/)
+        .filter((tech) => tech.length > 0);
+    }
+
     return await Project.create({
       userId,
       ...data,
@@ -27,6 +34,13 @@ class ProjectService extends BaseService {
 
     if (!project) {
       throw new Error('Proyecto no encontrado');
+    }
+
+    // Convertir technologies de string a array si es necesario
+    if (data.technologies && typeof data.technologies === 'string') {
+      data.technologies = data.technologies
+        .split(/\s+/)
+        .filter((tech) => tech.length > 0);
     }
 
     await project.update(data);

@@ -43,8 +43,13 @@ const projectValidator = {
       .withMessage('La URL del repositorio debe ser válida'),
     body('technologies')
       .optional()
-      .isArray()
-      .withMessage('Las tecnologías deben ser un array'),
+      .custom((value) => {
+        // Aceptar string o array
+        if (typeof value === 'string' || Array.isArray(value)) {
+          return true;
+        }
+        throw new Error('Las tecnologías deben ser un string o array');
+      }),
     body('isCurrent')
       .optional()
       .isBoolean()
@@ -91,8 +96,13 @@ const projectValidator = {
       .withMessage('La URL del repositorio debe ser válida'),
     body('technologies')
       .optional()
-      .isArray()
-      .withMessage('Las tecnologías deben ser un array'),
+      .custom((value) => {
+        // Aceptar string o array
+        if (typeof value === 'string' || Array.isArray(value)) {
+          return true;
+        }
+        throw new Error('Las tecnologías deben ser un string o array');
+      }),
     body('isCurrent')
       .optional()
       .isBoolean()

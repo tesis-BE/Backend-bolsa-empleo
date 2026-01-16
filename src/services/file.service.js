@@ -27,17 +27,17 @@ class FileService extends BaseService {
     // Si es foto de perfil o CV, actualizar el usuario
     if (type === FILE_TYPES.PHOTO && entityType === 'user') {
       await User.update(
-        { photoUrl: `/uploads/${file.filename}` },
+        { photoUrl: `/uploads/photos/${file.filename}` },
         { where: { id: userId } }
       );
     } else if (type === FILE_TYPES.CV && entityType === 'user') {
       await User.update(
-        { cvUrl: `/uploads/${file.filename}` },
+        { cvUrl: `/uploads/cvs/${file.filename}` },
         { where: { id: userId } }
       );
     } else if (type === FILE_TYPES.LOGO && entityType === 'company') {
       await Company.update(
-        { logoUrl: `/uploads/${file.filename}` },
+        { logoUrl: `/uploads/logos/${file.filename}` },
         { where: { id: entityId } }
       );
     }

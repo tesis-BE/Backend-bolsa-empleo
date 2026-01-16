@@ -2,11 +2,6 @@ const { body } = require('express-validator');
 
 const register = [
   body('email').isEmail().normalizeEmail().withMessage('Email inválido'),
-  body('personalEmail')
-    .optional()
-    .isEmail()
-    .normalizeEmail()
-    .withMessage('Email personal inválido'),
   body('institutionalEmail')
     .optional()
     .isEmail()
@@ -39,8 +34,8 @@ const changePassword = [
     .notEmpty()
     .withMessage('La contraseña actual es requerida'),
   body('newPassword')
-    .isLength({ min: 6 })
-    .withMessage('La nueva contraseña debe tener al menos 6 caracteres'),
+    .notEmpty()
+    .withMessage('La nueva contraseña es requerida'),
 ];
 
 module.exports = {

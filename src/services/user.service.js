@@ -1,5 +1,15 @@
 const BaseService = require('./base.service');
-const { User, Company, UserSkill, UserPortfolio, File } = require('../models');
+const { 
+  User, 
+  Company, 
+  UserSkill, 
+  UserPortfolio, 
+  File, 
+  WorkExperience,
+  Education,
+  Certification,
+  Project,
+} = require('../models');
 const { Op } = require('sequelize');
 
 class UserService extends BaseService {
@@ -14,6 +24,10 @@ class UserService extends BaseService {
         { model: Company, as: 'company' },
         { model: UserSkill, as: 'skills' },
         { model: UserPortfolio, as: 'portfolios' },
+        { model: WorkExperience, as: 'workExperiences', order: [['startDate', 'DESC']] },
+        { model: Education, as: 'education', order: [['startDate', 'DESC']] },
+        { model: Certification, as: 'certifications', order: [['issueDate', 'DESC']] },
+        { model: Project, as: 'projects', order: [['startDate', 'DESC']] },
       ],
       ...options,
     });
@@ -34,6 +48,11 @@ class UserService extends BaseService {
 
     // No permitir cambiar email ni password aquí
     const { email, password, userType, ...updateData } = data;
+
+    // Si institutionalEmail es string vacío, convertir a null
+    if (updateData.institutionalEmail === '') {
+      updateData.institutionalEmail = null;
+    }
 
     return user.update(updateData);
   }
@@ -80,8 +99,23 @@ class UserService extends BaseService {
       pageSize,
       where,
       include: [
-        { model: UserSkill, as: 'skills' },
-        { model: UserPortfolio, as: 'portfolios' },
+        { 
+          model: UserSkill, 
+          as: 'skills',
+          attributes: ['id', 'skillName', 'proficiencyLevel', 'yearsExperience']
+        },
+        { 
+          model: UserPortfolio, 
+          as: 'portfolios',
+          attributes: ['id', 'title', 'url']
+        },
+        {
+          model: WorkExperience,
+          as: 'workExperiences',
+          attributes: ['id', 'company', 'position', 'startDate', 'endDate', 'isCurrent'],
+          limit: 3,
+          order: [['startDate', 'DESC']],
+        },
       ],
     });
   }
@@ -90,10 +124,11 @@ class UserService extends BaseService {
     return this.findById(userId);
   }
 
-  async addSkill(userId, { name }) {
+  async addSkill(userId, { name, level }) {
     const skill = await UserSkill.create({
       userId,
-      name,
+      skillName: name,
+      proficiencyLevel: level || 'intermediate',
     });
     return skill;
   }

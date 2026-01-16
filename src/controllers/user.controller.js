@@ -35,8 +35,13 @@ class UserController extends BaseController {
         return res.status(404).json(ApiResponse.error('Usuario no encontrado'));
       }
 
+      console.log('🔍 Get Profile Response:');
+      console.log('   User:', user.dataValues);
+      console.log('   photoUrl:', user.photoUrl);
+
       return res.status(200).json(ApiResponse.success('Perfil obtenido', user));
     } catch (error) {
+      console.error('❌ Get Profile Error:', error);
       return res.status(500).json(ApiResponse.error(error.message));
     }
   }
@@ -70,7 +75,7 @@ class UserController extends BaseController {
       const file = await FileService.updateUserPhoto(req.user.id, req.file);
       return res.status(200).json(
         ApiResponse.success('Foto actualizada', {
-          url: `/uploads/${req.file.filename}`,
+          url: `/uploads/photos/${req.file.filename}`,
         })
       );
     } catch (error) {
@@ -89,7 +94,7 @@ class UserController extends BaseController {
       const file = await FileService.updateUserCV(req.user.id, req.file);
       return res.status(200).json(
         ApiResponse.success('CV actualizado', {
-          url: `/uploads/${req.file.filename}`,
+          url: `/uploads/cvs/${req.file.filename}`,
         })
       );
     } catch (error) {
