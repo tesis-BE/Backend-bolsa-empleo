@@ -35,13 +35,8 @@ class UserController extends BaseController {
         return res.status(404).json(ApiResponse.error('Usuario no encontrado'));
       }
 
-      console.log('🔍 Get Profile Response:');
-      console.log('   User:', user.dataValues);
-      console.log('   photoUrl:', user.photoUrl);
-
       return res.status(200).json(ApiResponse.success('Perfil obtenido', user));
     } catch (error) {
-      console.error('❌ Get Profile Error:', error);
       return res.status(500).json(ApiResponse.error(error.message));
     }
   }

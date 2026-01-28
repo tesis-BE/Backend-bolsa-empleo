@@ -1,8 +1,6 @@
 const ApiResponse = require('../utils/response.util');
 
 const errorHandler = (err, req, res, next) => {
-  console.error('Error:', err);
-
   // Multer errors
   if (err.name === 'MulterError') {
     if (err.code === 'LIMIT_FILE_SIZE') {

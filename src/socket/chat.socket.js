@@ -10,8 +10,6 @@ const messageLimiter = createSocketRateLimiter({
 
 module.exports = (io) => {
   io.on('connection', (socket) => {
-    console.log(`Usuario conectado: ${socket.id}`);
-
     // Unirse a una conversación
     socket.on('join_conversation', async ({ conversationId, userId }) => {
       try {
@@ -171,8 +169,6 @@ module.exports = (io) => {
 
     // Desconexión
     socket.on('disconnect', () => {
-      console.log(`Usuario desconectado: ${socket.id}`);
-
       // Notificar a la conversación que el usuario se desconectó
       if (socket.conversationId) {
         socket.broadcast

@@ -7,8 +7,6 @@ module.exports = (io) => {
   const notificationNamespace = io.of('/notifications');
 
   notificationNamespace.on('connection', (socket) => {
-    console.log(`Usuario conectado a notificaciones: ${socket.id}`);
-
     const userId = socket.userId; // Viene del middleware de autenticación
 
     if (!userId) {
@@ -19,7 +17,6 @@ module.exports = (io) => {
 
     // Registrar usuario conectado
     connectedUsers.set(userId, socket.id);
-    console.log(`Usuario ${userId} registrado en notificaciones`);
 
     // Unir al usuario a su sala personal
     socket.join(`user_${userId}`);
@@ -32,9 +29,6 @@ module.exports = (io) => {
 
     // Desconexión
     socket.on('disconnect', () => {
-      console.log(
-        `Usuario ${userId} desconectado de notificaciones: ${socket.id}`
-      );
       connectedUsers.delete(userId);
     });
 

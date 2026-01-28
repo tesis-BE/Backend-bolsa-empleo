@@ -98,16 +98,9 @@ async function initializeApp() {
 
     // Sincronizar modelos (crear tablas)
     await sequelize.sync({ alter: true });
-    console.log('✓ Tablas sincronizadas');
 
     server.listen(PORT, () => {
       console.log(`✓ Servidor ejecutándose en puerto ${PORT}`);
-      console.log(
-        `✓ CORS habilitado para: ${
-          process.env.CORS_ORIGIN || 'http://localhost:4200'
-        }`
-      );
-      console.log(`✓ API disponible en: http://localhost:${PORT}/api/v1`);
     });
   } catch (error) {
     console.error('✗ Error al inicializar:', error.message);

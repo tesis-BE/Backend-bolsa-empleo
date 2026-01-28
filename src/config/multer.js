@@ -67,17 +67,8 @@ const validateFileContent = async (req, res, next) => {
   }
 
   try {
-    console.log('=== Validando archivo ===');
-    console.log('Fieldname:', req.file.fieldname);
-    console.log('Original name:', req.file.originalname);
-    console.log('Mimetype:', req.file.mimetype);
-    console.log('Path:', req.file.path);
-    console.log('Size:', req.file.size);
-
     const buffer = fs.readFileSync(req.file.path);
     const detectedType = await fileType.fromBuffer(buffer);
-
-    console.log('Detected file type:', detectedType);
 
     const fileTypeParam = req.file.fieldname; // Usar fieldname del archivo
     let allowedMimes = [];
@@ -92,16 +83,8 @@ const validateFileContent = async (req, res, next) => {
       allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
     }
 
-    console.log('Allowed mimes:', allowedMimes);
-    console.log('File type mime:', detectedType?.mime);
-    console.log(
-      'Is valid?',
-      detectedType && allowedMimes.includes(detectedType.mime)
-    );
-
     // Validar el tipo real del archivo
     if (!detectedType || !allowedMimes.includes(detectedType.mime)) {
-      console.log('❌ Validación falló - eliminando archivo');
       // Eliminar archivo si la validación falla
       fs.unlinkSync(req.file.path);
       return res.status(400).json({
@@ -110,10 +93,8 @@ const validateFileContent = async (req, res, next) => {
       });
     }
 
-    console.log('✅ Validación exitosa');
     next();
   } catch (error) {
-    console.error('❌ Error en validateFileContent:', error);
     // Eliminar archivo en caso de error
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
