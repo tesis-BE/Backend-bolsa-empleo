@@ -56,6 +56,108 @@ class AnalyticsController extends BaseController {
       next(error);
     }
   }
+
+  async getUsersStatsByType(req, res, next) {
+    try {
+      const stats = await analyticsService.getUsersStatsByType();
+      return res.status(200).json({
+        success: true,
+        data: stats,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getApplicationsGlobalStats(req, res, next) {
+    try {
+      const stats = await analyticsService.getApplicationsGlobalStats();
+      return res.status(200).json({
+        success: true,
+        data: stats,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getCompaniesStats(req, res, next) {
+    try {
+      const stats = await analyticsService.getCompaniesStats();
+      return res.status(200).json({
+        success: true,
+        data: stats,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getTopCompaniesByHires(req, res, next) {
+    try {
+      const { limit = 10 } = req.query;
+      const companies = await analyticsService.getTopCompaniesByHires(
+        parseInt(limit)
+      );
+      return res.status(200).json({
+        success: true,
+        data: companies,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getGraduatesProfileStats(req, res, next) {
+    try {
+      const stats = await analyticsService.getGraduatesProfileStats();
+      return res.status(200).json({
+        success: true,
+        data: stats,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getGraduatesByFaculty(req, res, next) {
+    try {
+      const stats = await analyticsService.getGraduatesByFaculty();
+      return res.status(200).json({
+        success: true,
+        data: stats,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getAverageTimeToHire(req, res, next) {
+    try {
+      const stats = await analyticsService.getAverageTimeToHire();
+      return res.status(200).json({
+        success: true,
+        data: stats,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getTopSkillsDemand(req, res, next) {
+    try {
+      const { limit = 20 } = req.query;
+      const skills = await analyticsService.getTopSkillsDemand(
+        parseInt(limit)
+      );
+      return res.status(200).json({
+        success: true,
+        data: skills,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new AnalyticsController();

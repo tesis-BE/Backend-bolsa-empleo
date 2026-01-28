@@ -25,7 +25,7 @@ class UserService extends BaseService {
         { model: UserSkill, as: 'skills' },
         { model: UserPortfolio, as: 'portfolios' },
         { model: WorkExperience, as: 'workExperiences', order: [['startDate', 'DESC']] },
-        { model: Education, as: 'education', order: [['startDate', 'DESC']] },
+        { model: Education, as: 'educations', order: [['startDate', 'DESC']] },
         { model: Certification, as: 'certifications', order: [['issueDate', 'DESC']] },
         { model: Project, as: 'projects', order: [['startDate', 'DESC']] },
       ],

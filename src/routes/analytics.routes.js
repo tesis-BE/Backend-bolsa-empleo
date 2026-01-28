@@ -21,4 +21,52 @@ router.get(
   analyticsController.getJobsWithoutApplications
 );
 
+router.get(
+  '/dashboard/users-stats',
+  authMiddleware,
+  analyticsController.getUsersStatsByType
+);
+
+router.get(
+  '/dashboard/applications-stats',
+  authMiddleware,
+  analyticsController.getApplicationsGlobalStats
+);
+
+router.get(
+  '/dashboard/companies-stats',
+  authMiddleware,
+  analyticsController.getCompaniesStats
+);
+
+router.get(
+  '/dashboard/top-companies',
+  authMiddleware,
+  analyticsController.getTopCompaniesByHires
+);
+
+router.get(
+  '/dashboard/graduates-profile',
+  authMiddleware,
+  analyticsController.getGraduatesProfileStats
+);
+
+router.get(
+  '/dashboard/graduates-by-faculty',
+  authMiddleware,
+  analyticsController.getGraduatesByFaculty
+);
+
+router.get(
+  '/dashboard/time-to-hire',
+  authMiddleware,
+  analyticsController.getAverageTimeToHire
+);
+
+router.get(
+  '/dashboard/top-skills',
+  authMiddleware,
+  analyticsController.getTopSkillsDemand
+);
+
 module.exports = router;

@@ -43,8 +43,33 @@ class JobService extends BaseService {
       throw new Error('La empresa no está activa para crear ofertas');
     }
 
+    // Convertir formatos de frontend a backend
+    const processedData = { ...data };
+    
+    // Convertir jobType de MAYÚSCULAS a minúsculas con guiones
+    if (processedData.jobType) {
+      const jobTypeMap = {
+        'FULL_TIME': 'full-time',
+        'PART_TIME': 'part-time', 
+        'CONTRACT': 'contract',
+        'INTERNSHIP': 'internship',
+        'TEMPORARY': 'temporary'
+      };
+      processedData.jobType = jobTypeMap[processedData.jobType] || processedData.jobType.toLowerCase().replace('_', '-');
+    }
+
+    // Convertir workMode de MAYÚSCULAS a minúsculas con guiones
+    if (processedData.workMode) {
+      const workModeMap = {
+        'REMOTE': 'remote',
+        'ON_SITE': 'on-site',
+        'HYBRID': 'hybrid'
+      };
+      processedData.workMode = workModeMap[processedData.workMode] || processedData.workMode.toLowerCase().replace('_', '-');
+    }
+
     return Job.create({
-      ...data,
+      ...processedData,
       companyId: company.id,
       status: JOB_STATUS.DRAFT,
     });
@@ -66,7 +91,32 @@ class JobService extends BaseService {
 
     const { companyId, status, ...updateData } = data;
 
-    await job.update(updateData);
+    // Convertir formatos de frontend a backend
+    const processedData = { ...updateData };
+    
+    // Convertir jobType de MAYÚSCULAS a minúsculas con guiones
+    if (processedData.jobType) {
+      const jobTypeMap = {
+        'FULL_TIME': 'full-time',
+        'PART_TIME': 'part-time', 
+        'CONTRACT': 'contract',
+        'INTERNSHIP': 'internship',
+        'TEMPORARY': 'temporary'
+      };
+      processedData.jobType = jobTypeMap[processedData.jobType] || processedData.jobType.toLowerCase().replace('_', '-');
+    }
+
+    // Convertir workMode de MAYÚSCULAS a minúsculas con guiones
+    if (processedData.workMode) {
+      const workModeMap = {
+        'REMOTE': 'remote',
+        'ON_SITE': 'on-site',
+        'HYBRID': 'hybrid'
+      };
+      processedData.workMode = workModeMap[processedData.workMode] || processedData.workMode.toLowerCase().replace('_', '-');
+    }
+
+    await job.update(processedData);
     return job;
   }
 
