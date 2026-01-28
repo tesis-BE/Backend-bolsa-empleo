@@ -48,12 +48,13 @@ class ApplicationService extends BaseService {
         throw new Error('Usuario no encontrado');
       }
 
-      if (!user.cvFileId && !user.cvUrl) {
-        const error = new Error('Debes subir tu CV antes de postularte');
-        error.code = 'CV_REQUIRED';
-        error.missingFields = ['cv'];
-        throw error;
-      }
+      // TODO: CV no obligatorio - comentado temporalmente
+      // if (!user.cvFileId && !user.cvUrl) {
+      //   const error = new Error('Debes subir tu CV antes de postularte');
+      //   error.code = 'CV_REQUIRED';
+      //   error.missingFields = ['cv'];
+      //   throw error;
+      // }
 
       const job = await Job.findByPk(jobId, {
         include: [{ model: Company, as: 'company' }],

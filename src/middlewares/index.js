@@ -6,6 +6,7 @@ const {
   isGraduate,
 } = require('./role.middleware');
 const errorHandler = require('./error.middleware');
+const requestLogger = require('./request-logger.middleware');
 
 module.exports = {
   authMiddleware,
@@ -14,4 +15,5 @@ module.exports = {
   isRecruiter,
   isGraduate,
   errorHandler,
+  requestLogger,
 };

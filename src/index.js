@@ -10,6 +10,7 @@ const sequelize = require('./config/database');
 const { createDatabaseIfNotExists } = require('./config/database');
 const models = require('./models');
 const errorHandler = require('./middlewares/error.middleware');
+const requestLogger = require('./middlewares/request-logger.middleware');
 const routes = require('./routes');
 
 const app = express();
@@ -43,6 +44,9 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Request logging middleware
+app.use(requestLogger);
 
 // Servir archivos estáticos con headers CORS explícitos
 app.use('/uploads', (req, res, next) => {
