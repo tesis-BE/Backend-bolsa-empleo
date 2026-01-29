@@ -54,6 +54,10 @@ const Education = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    facultyId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
   {
     tableName: 'educations',

@@ -9,6 +9,8 @@ const {
   Education,
   Certification,
   Project,
+  Faculty,
+  University,
 } = require('../models');
 const { Op } = require('sequelize');
 
@@ -22,10 +24,24 @@ class UserService extends BaseService {
       attributes: { exclude: ['password'] },
       include: [
         { model: Company, as: 'company' },
+        { 
+          model: Faculty, 
+          as: 'faculty',
+          include: [{ model: University, as: 'university' }]
+        },
         { model: UserSkill, as: 'skills' },
         { model: UserPortfolio, as: 'portfolios' },
         { model: WorkExperience, as: 'workExperiences', order: [['startDate', 'DESC']] },
-        { model: Education, as: 'educations', order: [['startDate', 'DESC']] },
+        { 
+          model: Education, 
+          as: 'educations', 
+          include: [{ 
+            model: Faculty, 
+            as: 'faculty',
+            include: [{ model: University, as: 'university' }]
+          }],
+          order: [['startDate', 'DESC']] 
+        },
         { model: Certification, as: 'certifications', order: [['issueDate', 'DESC']] },
         { model: Project, as: 'projects', order: [['startDate', 'DESC']] },
       ],

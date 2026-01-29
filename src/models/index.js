@@ -33,12 +33,9 @@ Company.hasMany(User, { foreignKey: 'companyId', as: 'recruiters' });
 Job.belongsTo(Company, { foreignKey: 'companyId', as: 'company' });
 Company.hasMany(Job, { foreignKey: 'companyId', as: 'jobs' });
 
-// User -> Job (1 recruiter : N jobs - a través de company)
-Job.belongsTo(User, {
-  foreignKey: 'companyId',
-  sourceKey: 'id',
-  as: 'createdByUser',
-});
+// Job -> User (recruiter que creó la oferta)
+Job.belongsTo(User, { foreignKey: 'createdBy', as: 'recruiter' });
+User.hasMany(Job, { foreignKey: 'createdBy', as: 'createdJobs' });
 
 // User -> Application (1:N)
 Application.belongsTo(User, { foreignKey: 'userId', as: 'user' });
@@ -110,6 +107,14 @@ Permission.belongsToMany(Role, {
 // University -> Faculty (1:N)
 Faculty.belongsTo(University, { foreignKey: 'universityId', as: 'university' });
 University.hasMany(Faculty, { foreignKey: 'universityId', as: 'faculties' });
+
+// User -> Faculty (N:1) - graduados pertenecen a una facultad
+User.belongsTo(Faculty, { foreignKey: 'facultyId', as: 'faculty' });
+Faculty.hasMany(User, { foreignKey: 'facultyId', as: 'graduates' });
+
+// Education -> Faculty (N:1)
+Education.belongsTo(Faculty, { foreignKey: 'facultyId', as: 'faculty' });
+Faculty.hasMany(Education, { foreignKey: 'facultyId', as: 'educations' });
 
 User.hasMany(SavedJob, { foreignKey: 'userId', as: 'savedJobs' });
 SavedJob.belongsTo(User, { foreignKey: 'userId', as: 'user' });
