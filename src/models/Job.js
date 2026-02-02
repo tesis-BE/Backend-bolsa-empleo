@@ -74,7 +74,7 @@ const Job = sequelize.define(
     },
     createdBy: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     status: {
       type: DataTypes.ENUM(
