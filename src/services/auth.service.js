@@ -1,4 +1,5 @@
 const { User } = require('../models');
+const { Op } = require('sequelize');
 const {
   generateToken,
   generateRefreshToken,
@@ -13,22 +14,37 @@ class AuthService {
       password,
       firstName,
       lastName,
+      institutionalEmail,
+      phone,
       userType = USER_TYPES.GRADUATE,
+      facultyId,
+      cedula,
     } = data;
 
-    // Verificar si el usuario ya existe
-    const existingUser = await User.findOne({ where: { email } });
+    const uniqueChecks = [{ email }];
+    if (institutionalEmail) {
+      uniqueChecks.push({ institutionalEmail });
+    }
+
+    const existingUser = await User.findOne({
+      where: {
+        [Op.or]: uniqueChecks,
+      },
+    });
     if (existingUser) {
       throw new Error('El email ya está registrado');
     }
 
-    // Crear nuevo usuario
     const user = await User.create({
       email,
       password,
       firstName,
       lastName,
+      institutionalEmail,
+      phone,
       userType,
+      facultyId,
+      cedula,
     });
 
     // Generar tokens
@@ -43,8 +59,11 @@ class AuthService {
   }
 
   async login(email, password) {
-    // Buscar usuario
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({
+      where: {
+        [Op.or]: [{ email }, { institutionalEmail: email }],
+      },
+    });
     if (!user) {
       throw new Error('Email o contraseña incorrectos');
     }
@@ -131,9 +150,13 @@ class AuthService {
     return {
       id: user.id,
       email: user.email,
+      institutionalEmail: user.institutionalEmail,
       firstName: user.firstName,
       lastName: user.lastName,
       userType: user.userType,
+      phone: user.phone,
+      facultyId: user.facultyId,
+      cedula: user.cedula,
       bio: user.bio,
       photoUrl: user.photoUrl,
       cvUrl: user.cvUrl,

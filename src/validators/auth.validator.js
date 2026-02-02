@@ -7,6 +7,12 @@ const register = [
     .isEmail()
     .normalizeEmail()
     .withMessage('Email institucional inválido'),
+  body('cedula')
+    .optional()
+    .isLength({ min: 10, max: 10 })
+    .withMessage('La cédula debe tener 10 dígitos')
+    .isNumeric()
+    .withMessage('La cédula debe ser numérica'),
   body('password')
     .isLength({ min: 6 })
     .withMessage('La contraseña debe tener al menos 6 caracteres'),
@@ -18,6 +24,10 @@ const register = [
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage('El apellido debe tener entre 2 y 50 caracteres'),
+  body('facultyId')
+    .optional()
+    .isInt()
+    .withMessage('El ID de facultad debe ser un número'),
   body('userType')
     .optional()
     .isIn(['graduate', 'recruiter', 'admin'])

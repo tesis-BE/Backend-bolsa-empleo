@@ -17,6 +17,7 @@ const searchRoutes = require('./search.routes');
 const analyticsRoutes = require('./analytics.routes');
 const recommendationRoutes = require('./recommendation.routes');
 const profileRoutes = require('./profile.routes');
+const cedulaRoutes = require('./cedula.routes');
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
@@ -34,8 +35,8 @@ router.use('/search', searchRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/recommendations', recommendationRoutes);
 router.use('/profile', profileRoutes);
+router.use('/cedula', cedulaRoutes);
 
-// Health check
 router.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });

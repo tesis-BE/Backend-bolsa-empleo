@@ -19,6 +19,10 @@ const User = sequelize.define(
         isEmail: true,
       },
     },
+    cedula: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     institutionalEmail: {
       type: DataTypes.STRING,
       allowNull: true,
