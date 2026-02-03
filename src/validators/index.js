@@ -5,6 +5,7 @@ const jobValidator = require('./job.validator');
 const applicationValidator = require('./application.validator');
 const universityValidator = require('./university.validator');
 const facultyValidator = require('./faculty.validator');
+const careerValidator = require('./career.validator');
 const workExperienceValidator = require('./workExperience.validator');
 const educationValidator = require('./education.validator');
 const certificationValidator = require('./certification.validator');
@@ -18,6 +19,7 @@ module.exports = {
   applicationValidator,
   universityValidator,
   facultyValidator,
+  careerValidator,
   workExperienceValidator,
   educationValidator,
   certificationValidator,

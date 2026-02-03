@@ -13,6 +13,7 @@ const Permission = require('./Permission');
 const RolePermission = require('./RolePermission');
 const University = require('./University');
 const Faculty = require('./Faculty');
+const Career = require('./Career');
 const SavedJob = require('./SavedJob');
 const Interview = require('./Interview');
 const WorkExperience = require('./WorkExperience');
@@ -116,6 +117,10 @@ Faculty.hasMany(User, { foreignKey: 'facultyId', as: 'graduates' });
 Education.belongsTo(Faculty, { foreignKey: 'facultyId', as: 'faculty' });
 Faculty.hasMany(Education, { foreignKey: 'facultyId', as: 'educations' });
 
+// Faculty -> Career (1:N)
+Career.belongsTo(Faculty, { foreignKey: 'facultyId', as: 'faculty' });
+Faculty.hasMany(Career, { foreignKey: 'facultyId', as: 'careers' });
+
 User.hasMany(SavedJob, { foreignKey: 'userId', as: 'savedJobs' });
 SavedJob.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
@@ -156,6 +161,7 @@ module.exports = {
   RolePermission,
   University,
   Faculty,
+  Career,
   SavedJob,
   Interview,
   WorkExperience,
