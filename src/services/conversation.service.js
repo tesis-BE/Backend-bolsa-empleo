@@ -13,6 +13,12 @@ class ConversationService extends BaseService {
     super(Conversation);
   }
 
+  normalizeParticipants(userIdA, userIdB) {
+    const a = parseInt(userIdA);
+    const b = parseInt(userIdB);
+    return a < b ? [a, b] : [b, a];
+  }
+
   async findById(id, options = {}) {
     return Conversation.findByPk(id, {
       include: [
@@ -106,6 +112,43 @@ class ConversationService extends BaseService {
     return (
       conversation.graduateId === userId || conversation.recruiterId === userId
     );
+  }
+
+  async findOrCreateDirect(userIdA, userIdB) {
+    const [participantOneId, participantTwoId] = this.normalizeParticipants(
+      userIdA,
+      userIdB
+    );
+
+    const existing = await Conversation.findOne({
+      where: {
+        applicationId: null,
+        graduateId: participantOneId,
+        recruiterId: participantTwoId,
+      },
+      include: [
+        {
+          model: User,
+          as: 'graduate',
+          attributes: ['id', 'firstName', 'lastName', 'email', 'photoUrl'],
+        },
+        {
+          model: User,
+          as: 'recruiter',
+          attributes: ['id', 'firstName', 'lastName', 'email', 'photoUrl'],
+        },
+      ],
+    });
+
+    if (existing) {
+      return existing;
+    }
+
+    return Conversation.create({
+      applicationId: null,
+      graduateId: participantOneId,
+      recruiterId: participantTwoId,
+    });
   }
 
   async getUnreadCount(userId) {

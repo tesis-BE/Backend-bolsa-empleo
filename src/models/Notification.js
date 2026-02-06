@@ -37,6 +37,10 @@ const Notification = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    readAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
     createdAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

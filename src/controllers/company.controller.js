@@ -102,6 +102,23 @@ class CompanyController extends BaseController {
     }
   }
 
+  async addRecruiterToCompany(req, res) {
+    try {
+      const { companyId } = req.params;
+      const { userId } = req.body;
+      const recruiter = await CompanyService.addRecruiter(
+        companyId,
+        userId,
+        req.user.id
+      );
+      return res
+        .status(200)
+        .json(ApiResponse.success('Reclutador añadido', recruiter));
+    } catch (error) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
+
   async removeRecruiter(req, res) {
     try {
       const { userId } = req.params;
@@ -114,6 +131,16 @@ class CompanyController extends BaseController {
       }
 
       await CompanyService.removeRecruiter(company.id, userId, req.user.id);
+      return res.status(200).json(ApiResponse.success('Reclutador removido'));
+    } catch (error) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
+
+  async removeRecruiterFromCompany(req, res) {
+    try {
+      const { companyId, userId } = req.params;
+      await CompanyService.removeRecruiter(companyId, userId, req.user.id);
       return res.status(200).json(ApiResponse.success('Reclutador removido'));
     } catch (error) {
       return res.status(400).json(ApiResponse.error(error.message));

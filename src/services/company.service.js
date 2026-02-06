@@ -29,7 +29,15 @@ class CompanyService extends BaseService {
       return null;
     }
     return Company.findByPk(user.companyId, {
-      include: [{ model: Job, as: 'jobs' }],
+      include: [
+        { model: User, as: 'owner', attributes: { exclude: ['password'] } },
+        {
+          model: User,
+          as: 'recruiters',
+          attributes: { exclude: ['password'] },
+        },
+        { model: Job, as: 'jobs' },
+      ],
     });
   }
 

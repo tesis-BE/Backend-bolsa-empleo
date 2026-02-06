@@ -107,6 +107,19 @@ class ApplicationService extends BaseService {
         );
       }
 
+      const recruiterId = job.createdBy || job.company?.recruiterId;
+      if (recruiterId) {
+        await Conversation.findOrCreate({
+          where: { applicationId: application.id },
+          defaults: {
+            applicationId: application.id,
+            graduateId: userId,
+            recruiterId,
+          },
+          transaction,
+        });
+      }
+
       await transaction.commit();
       return application;
     } catch (error) {

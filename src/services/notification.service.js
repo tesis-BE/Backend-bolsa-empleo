@@ -40,13 +40,13 @@ class NotificationService extends BaseService {
       throw new Error('Notificación no encontrada');
     }
 
-    await notification.update({ readAt: new Date() });
+    await notification.update({ readAt: new Date(), isRead: true });
     return notification;
   }
 
   async markAllAsRead(userId) {
     await Notification.update(
-      { readAt: new Date() },
+      { readAt: new Date(), isRead: true },
       { where: { userId, readAt: null } }
     );
     return true;

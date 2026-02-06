@@ -24,6 +24,12 @@ router.get(
   ConversationController.getByApplication.bind(ConversationController)
 );
 
+// Crear u obtener conversación directa entre usuarios
+router.post(
+  '/direct',
+  ConversationController.createOrGetDirect.bind(ConversationController)
+);
+
 // Obtener conversación por ID
 router.get('/:id', ConversationController.getById.bind(ConversationController));
 

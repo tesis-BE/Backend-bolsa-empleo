@@ -152,6 +152,35 @@ class ConversationController {
       return res.status(500).json(ApiResponse.error(error.message));
     }
   }
+
+  async createOrGetDirect(req, res) {
+    try {
+      const { userId } = req.body;
+
+      if (!userId) {
+        return res
+          .status(400)
+          .json(ApiResponse.error('El userId es requerido'));
+      }
+
+      if (parseInt(userId) === req.user.id) {
+        return res
+          .status(400)
+          .json(ApiResponse.error('No puedes crear un chat contigo mismo'));
+      }
+
+      const conversation = await ConversationService.findOrCreateDirect(
+        req.user.id,
+        userId
+      );
+
+      return res
+        .status(200)
+        .json(ApiResponse.success('Conversación directa lista', conversation));
+    } catch (error) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
 }
 
 module.exports = new ConversationController();

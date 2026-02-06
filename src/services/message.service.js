@@ -48,13 +48,24 @@ class MessageService extends BaseService {
     });
 
     // Actualizar la conversación
-    await conversation.update({ updatedAt: new Date() });
+    await conversation.update({
+      updatedAt: new Date(),
+      lastMessageAt: new Date(),
+    });
 
     // Determinar el receptor
-    const recipientId =
-      conversation.graduateId === senderId
-        ? conversation.recruiterId
-        : conversation.graduateId;
+    let recipientId = null;
+    if (conversation.graduateId && conversation.recruiterId) {
+      recipientId =
+        conversation.graduateId === senderId
+          ? conversation.recruiterId
+          : conversation.graduateId;
+    } else if (conversation.participantOneId && conversation.participantTwoId) {
+      recipientId =
+        conversation.participantOneId === senderId
+          ? conversation.participantTwoId
+          : conversation.participantOneId;
+    }
 
     // Obtener datos del sender para la notificación
     const sender = await User.findByPk(senderId, {
@@ -62,14 +73,16 @@ class MessageService extends BaseService {
     });
 
     // Notificar al receptor
-    await NotificationService.create({
-      userId: recipientId,
-      title: 'Nuevo mensaje',
-      message: `${sender.firstName} ${sender.lastName} te ha enviado un mensaje`,
-      type: 'info',
-      eventType: 'new_message',
-      relatedId: conversationId,
-    });
+    if (recipientId) {
+      await NotificationService.create({
+        userId: recipientId,
+        title: 'Nuevo mensaje',
+        message: `${sender.firstName} ${sender.lastName} te ha enviado un mensaje`,
+        type: 'info',
+        eventType: 'new_message',
+        relatedId: conversationId,
+      });
+    }
 
     // Retornar mensaje con datos del sender
     return Message.findByPk(message.id, {
@@ -103,7 +116,7 @@ class MessageService extends BaseService {
 
     // Solo marcar como leído si no es el sender
     if (message.senderId !== userId && !message.readAt) {
-      await message.update({ readAt: new Date() });
+      await message.update({ readAt: new Date(), isRead: true });
     }
 
     return message;
@@ -126,7 +139,7 @@ class MessageService extends BaseService {
 
     // Marcar todos los mensajes no leídos que no fueron enviados por el usuario
     await Message.update(
-      { readAt: new Date() },
+      { readAt: new Date(), isRead: true },
       {
         where: {
           conversationId,

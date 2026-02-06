@@ -44,7 +44,7 @@ module.exports = (io) => {
           return;
         }
 
-        await notification.update({ isRead: true });
+        await notification.update({ isRead: true, readAt: new Date() });
         socket.emit('notification_read', { notificationId });
       } catch (error) {
         socket.emit('error', { message: error.message });
@@ -55,8 +55,8 @@ module.exports = (io) => {
     socket.on('mark_all_as_read', async () => {
       try {
         await Notification.update(
-          { isRead: true },
-          { where: { userId, isRead: false } }
+          { isRead: true, readAt: new Date() },
+          { where: { userId, readAt: null } }
         );
         socket.emit('all_notifications_read');
       } catch (error) {
@@ -75,7 +75,7 @@ module.exports = (io) => {
         title: notification.title,
         message: notification.message,
         data: notification.data,
-        isRead: notification.isRead,
+        isRead: notification.isRead ?? Boolean(notification.readAt),
         createdAt: notification.createdAt,
       });
     } catch (error) {

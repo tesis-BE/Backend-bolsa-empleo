@@ -112,7 +112,10 @@ module.exports = (io) => {
           };
 
           // Actualizar última actividad de la conversación
-          await conversation.update({ lastMessageAt: new Date() });
+          await conversation.update({
+            lastMessageAt: new Date(),
+            updatedAt: new Date(),
+          });
 
           // Emitir a ambos usuarios en la conversación
           io.to(`conversation_${conversationId}`).emit(
@@ -150,7 +153,7 @@ module.exports = (io) => {
     socket.on('mark_as_read', async ({ conversationId, messageIds }) => {
       try {
         await Message.update(
-          { isRead: true },
+          { isRead: true, readAt: new Date() },
           {
             where: {
               id: messageIds,

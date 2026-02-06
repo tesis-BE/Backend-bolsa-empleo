@@ -21,9 +21,17 @@ const Message = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    attachmentUrl: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     isRead: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
+    },
+    readAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
     createdAt: {
       type: DataTypes.DATE,

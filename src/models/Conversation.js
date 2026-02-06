@@ -11,7 +11,7 @@ const Conversation = sequelize.define(
     },
     applicationId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       unique: true,
     },
     graduateId: {
@@ -21,6 +21,10 @@ const Conversation = sequelize.define(
     recruiterId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+    },
+    lastMessageAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -43,6 +47,9 @@ const Conversation = sequelize.define(
       },
       {
         fields: ['recruiterId'],
+      },
+      {
+        fields: ['lastMessageAt'],
       },
     ],
   }

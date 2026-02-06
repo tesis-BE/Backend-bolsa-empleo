@@ -209,6 +209,12 @@ class UserService extends BaseService {
     const { count, rows } = await User.findAndCountAll({
       where,
       attributes: { exclude: ['password'] },
+      include: [
+        {
+          association: 'company',
+          attributes: ['id', 'name'],
+        },
+      ],
       offset,
       limit: pageSize,
       order: [['createdAt', 'DESC']],
