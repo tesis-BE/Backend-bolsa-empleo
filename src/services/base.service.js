@@ -45,15 +45,22 @@ class BaseService {
     where = {},
     include = [],
     order = [['createdAt', 'DESC']],
+    attributes,
   }) {
     const offset = (page - 1) * pageSize;
-    const { count, rows } = await this.model.findAndCountAll({
+    const queryOptions = {
       where,
       include,
       order,
       limit: pageSize,
       offset,
-    });
+    };
+
+    if (attributes) {
+      queryOptions.attributes = attributes;
+    }
+
+    const { count, rows } = await this.model.findAndCountAll(queryOptions);
 
     return {
       data: rows,

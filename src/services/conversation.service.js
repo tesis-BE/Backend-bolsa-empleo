@@ -144,11 +144,44 @@ class ConversationService extends BaseService {
       return existing;
     }
 
-    return Conversation.create({
+    const created = await Conversation.create({
       applicationId: null,
       graduateId: participantOneId,
       recruiterId: participantTwoId,
     });
+
+    return this.findById(created.id);
+  }
+
+  async findOrCreateConversation({ graduateId, recruiterId, applicationId }) {
+    if (applicationId) {
+      const existingByApp = await Conversation.findOne({
+        where: { applicationId },
+      });
+      if (existingByApp) {
+        return this.findById(existingByApp.id);
+      }
+    }
+
+    const existing = await Conversation.findOne({
+      where: {
+        applicationId: applicationId || null,
+        graduateId,
+        recruiterId,
+      },
+    });
+
+    if (existing) {
+      return this.findById(existing.id);
+    }
+
+    const created = await Conversation.create({
+      applicationId: applicationId || null,
+      graduateId,
+      recruiterId,
+    });
+
+    return this.findById(created.id);
   }
 
   async getUnreadCount(userId) {
@@ -177,6 +210,19 @@ class ConversationService extends BaseService {
     });
 
     return unreadCount;
+  }
+
+  async deleteConversation(id) {
+    // Eliminar todos los mensajes de la conversación primero
+    const Message = require('../models').Message;
+    await Message.destroy({
+      where: { conversationId: id },
+    });
+
+    // Luego eliminar la conversación
+    return Conversation.destroy({
+      where: { id },
+    });
   }
 }
 

@@ -192,6 +192,67 @@ class CompanyController extends BaseController {
     }
   }
 
+  async updateById(req, res) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res
+          .status(400)
+          .json(ApiResponse.error('Error de validación', errors.array()));
+      }
+
+      const updatedCompany = await CompanyService.updateCompany(
+        req.params.id,
+        req.user.id,
+        req.body,
+        true
+      );
+
+      return res
+        .status(200)
+        .json(ApiResponse.success('Empresa actualizada', updatedCompany));
+    } catch (error) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
+
+  async deleteById(req, res) {
+    try {
+      const company = await CompanyService.findById(req.params.id);
+      if (!company) {
+        return res.status(404).json(ApiResponse.error('Empresa no encontrada'));
+      }
+      await company.destroy();
+      return res.status(200).json(ApiResponse.success('Empresa eliminada'));
+    } catch (error) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
+
+  async uploadLogoById(req, res) {
+    try {
+      if (!req.file) {
+        return res
+          .status(400)
+          .json(ApiResponse.error('No se proporcionó ningún archivo'));
+      }
+
+      const company = await CompanyService.findById(req.params.id);
+      if (!company) {
+        return res.status(404).json(ApiResponse.error('Empresa no encontrada'));
+      }
+
+      await FileService.updateCompanyLogo(company.id, req.user.id, req.file);
+      return res.status(200).json(
+        ApiResponse.success('Logo actualizado', {
+          url: `/uploads/${req.file.filename}`,
+        })
+      );
+    } catch (error) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
+
   async getWithJobs(req, res) {
     try {
       const company = await CompanyService.getWithJobs(req.params.id);

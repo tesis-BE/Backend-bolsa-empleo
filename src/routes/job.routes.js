@@ -23,6 +23,12 @@ router.put(
   JobController.update.bind(JobController)
 );
 
+router.patch(
+  '/:id',
+  jobValidator.update,
+  JobController.update.bind(JobController)
+);
+
 router.patch('/:id/publish', JobController.publish.bind(JobController));
 
 router.patch('/:id/close', JobController.close.bind(JobController));

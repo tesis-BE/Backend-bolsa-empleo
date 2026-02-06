@@ -17,6 +17,7 @@ router.post('/refresh-token', loginLimiter, AuthController.refreshToken);
 // Rutas protegidas
 const { authMiddleware } = require('../middlewares');
 router.get('/me', authMiddleware, AuthController.getMe);
+router.get('/profile', authMiddleware, AuthController.getMe);
 router.post(
   '/change-password',
   authMiddleware,

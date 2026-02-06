@@ -83,6 +83,12 @@ router.patch(
   UserController.toggleUserStatus.bind(UserController)
 );
 
+// Cambiar tipo de usuario (admin)
+router.patch(
+  '/:id/user-type',
+  UserController.changeUserType.bind(UserController)
+);
+
 // Actualizar usuario
 router.put(
   '/:id',

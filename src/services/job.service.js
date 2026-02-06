@@ -189,6 +189,11 @@ class JobService extends BaseService {
           attributes: ['id', 'name', 'industry', 'location', 'logoUrl'],
         },
       ],
+      attributes: [
+        'id', 'title', 'description', 'location', 'jobType', 'workMode',
+        'salaryMin', 'salaryMax', 'skills', 'status',
+        'expiresAt', 'deadline', 'createdAt', 'updatedAt', 'companyId',
+      ],
       order: [['createdAt', 'DESC']],
     });
   }

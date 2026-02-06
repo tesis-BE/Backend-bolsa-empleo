@@ -11,12 +11,13 @@ class UserController extends BaseController {
 
   async getGraduates(req, res) {
     try {
-      const { page = 1, pageSize = 12, search, isAvailable } = req.query;
+      const { page = 1, pageSize = 12, search, isAvailable, facultyId } = req.query;
       const result = await UserService.searchGraduates({
         page: parseInt(page),
         pageSize: parseInt(pageSize),
         search: search || undefined,
         availableForWork: isAvailable,
+        facultyId: facultyId || undefined,
       });
       return res
         .status(200)
@@ -265,6 +266,37 @@ class UserController extends BaseController {
         .json(
           ApiResponse.success(
             'Estado del usuario actualizado',
+            userWithoutPassword
+          )
+        );
+    } catch (error) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
+
+  async changeUserType(req, res) {
+    try {
+      const { id } = req.params;
+      const { userType } = req.body;
+
+      if (!userType || !['graduate', 'recruiter', 'admin'].includes(userType)) {
+        return res
+          .status(400)
+          .json(ApiResponse.error('Tipo de usuario inválido'));
+      }
+
+      const user = await UserService.findById(id);
+      if (!user) {
+        return res.status(404).json(ApiResponse.error('Usuario no encontrado'));
+      }
+
+      const updated = await UserService.changeUserType(id, userType);
+      const { password: _, ...userWithoutPassword } = updated.toJSON();
+      return res
+        .status(200)
+        .json(
+          ApiResponse.success(
+            'Tipo de usuario actualizado',
             userWithoutPassword
           )
         );

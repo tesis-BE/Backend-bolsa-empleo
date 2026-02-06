@@ -153,6 +153,37 @@ class ConversationController {
     }
   }
 
+  async findOrCreate(req, res) {
+    try {
+      const { graduateId, recruiterId, applicationId } = req.body;
+
+      if (!graduateId || !recruiterId) {
+        return res
+          .status(400)
+          .json(ApiResponse.error('graduateId y recruiterId son requeridos'));
+      }
+
+      const userId = req.user.id;
+      if (userId !== parseInt(graduateId) && userId !== parseInt(recruiterId)) {
+        return res
+          .status(403)
+          .json(ApiResponse.error('No tienes acceso a esta conversación'));
+      }
+
+      const conversation = await ConversationService.findOrCreateConversation({
+        graduateId: parseInt(graduateId),
+        recruiterId: parseInt(recruiterId),
+        applicationId: applicationId ? parseInt(applicationId) : null,
+      });
+
+      return res
+        .status(200)
+        .json(ApiResponse.success('Conversación lista', conversation));
+    } catch (error) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
+
   async createOrGetDirect(req, res) {
     try {
       const { userId } = req.body;
@@ -179,6 +210,36 @@ class ConversationController {
         .json(ApiResponse.success('Conversación directa lista', conversation));
     } catch (error) {
       return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
+
+  async deleteById(req, res) {
+    try {
+      const conversation = await ConversationService.findById(req.params.id);
+
+      if (!conversation) {
+        return res
+          .status(404)
+          .json(ApiResponse.error('Conversación no encontrada'));
+      }
+
+      // Verificar acceso - solo el propietario puede eliminar
+      if (
+        conversation.graduateId !== req.user.id &&
+        conversation.recruiterId !== req.user.id
+      ) {
+        return res
+          .status(403)
+          .json(ApiResponse.error('No tienes permiso para eliminar esta conversación'));
+      }
+
+      await ConversationService.deleteConversation(req.params.id);
+
+      return res
+        .status(200)
+        .json(ApiResponse.success('Conversación eliminada'));
+    } catch (error) {
+      return res.status(500).json(ApiResponse.error(error.message));
     }
   }
 }

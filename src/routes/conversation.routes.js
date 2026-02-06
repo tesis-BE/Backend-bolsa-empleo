@@ -24,6 +24,12 @@ router.get(
   ConversationController.getByApplication.bind(ConversationController)
 );
 
+// Crear u obtener conversación (por graduateId/recruiterId/applicationId)
+router.post(
+  '/find-or-create',
+  ConversationController.findOrCreate.bind(ConversationController)
+);
+
 // Crear u obtener conversación directa entre usuarios
 router.post(
   '/direct',
@@ -49,6 +55,12 @@ router.post(
 router.patch(
   '/:id/read',
   ConversationController.markAsRead.bind(ConversationController)
+);
+
+// Eliminar conversación
+router.delete(
+  '/:id',
+  ConversationController.deleteById.bind(ConversationController)
 );
 
 module.exports = router;

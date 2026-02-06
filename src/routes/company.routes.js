@@ -34,6 +34,28 @@ router.post(
   CompanyController.uploadLogo.bind(CompanyController)
 );
 
+// Actualizar empresa por ID (admin o PATCH desde frontend)
+router.patch(
+  '/:id',
+  companyValidator.update,
+  CompanyController.updateById.bind(CompanyController)
+);
+
+// Eliminar empresa (admin)
+router.delete(
+  '/:id',
+  roleMiddleware([USER_TYPES.ADMIN]),
+  CompanyController.deleteById.bind(CompanyController)
+);
+
+// Subir logo por ID de empresa
+router.post(
+  '/:id/upload-logo',
+  upload.single('logo'),
+  validateFileContent,
+  CompanyController.uploadLogoById.bind(CompanyController)
+);
+
 router.post(
   '/recruiters',
   companyValidator.addRecruiter,

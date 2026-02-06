@@ -99,15 +99,21 @@ module.exports = (io) => {
 
           // Obtener datos del remitente
           const sender = await User.findByPk(socket.userId, {
-            attributes: ['id', 'firstName', 'lastName', 'profilePhotoId'],
+            attributes: ['id', 'firstName', 'lastName', 'photoUrl'],
           });
 
           const messageData = {
             id: message.id,
-            conversationId: Number(conversationId), // Asegurar que sea número
+            conversationId: Number(conversationId),
             senderId: socket.userId,
-            senderName: `${sender.firstName} ${sender.lastName}`,
+            sender: {
+              id: sender.id,
+              firstName: sender.firstName,
+              lastName: sender.lastName,
+              photoUrl: sender.photoUrl,
+            },
             content,
+            attachmentUrl: message.attachmentUrl || null,
             createdAt: message.createdAt,
             isRead: false
           };

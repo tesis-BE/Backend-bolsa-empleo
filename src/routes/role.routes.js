@@ -13,6 +13,7 @@ router.get('/', RoleController.getAll.bind(RoleController));
 router.get('/:id', RoleController.getById.bind(RoleController));
 router.post('/', RoleController.create.bind(RoleController));
 router.put('/:id', RoleController.update.bind(RoleController));
+router.patch('/:id', RoleController.update.bind(RoleController));
 router.delete('/:id', RoleController.delete.bind(RoleController));
 
 // Permisos

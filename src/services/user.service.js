@@ -95,11 +95,16 @@ class UserService extends BaseService {
     skills,
     availableForWork,
     search,
+    facultyId,
   }) {
     const where = { userType: 'graduate' };
 
     if (availableForWork !== undefined) {
       where.availableForWork = availableForWork === 'true';
+    }
+
+    if (facultyId) {
+      where.facultyId = parseInt(facultyId);
     }
 
     if (search) {
@@ -114,7 +119,14 @@ class UserService extends BaseService {
       page,
       pageSize,
       where,
+      attributes: { exclude: ['password'] },
       include: [
+        {
+          model: Faculty,
+          as: 'faculty',
+          attributes: ['id', 'name'],
+          include: [{ model: University, as: 'university', attributes: ['id', 'name'] }],
+        },
         { 
           model: UserSkill, 
           as: 'skills',
@@ -128,8 +140,15 @@ class UserService extends BaseService {
         {
           model: WorkExperience,
           as: 'workExperiences',
-          attributes: ['id', 'company', 'position', 'startDate', 'endDate', 'isCurrent'],
+          attributes: ['id', 'company', 'position', 'startDate', 'endDate', 'isCurrent', 'description'],
           limit: 3,
+          order: [['startDate', 'DESC']],
+        },
+        {
+          model: Education,
+          as: 'educations',
+          attributes: ['id', 'institution', 'degree', 'fieldOfStudy', 'graduationYear', 'startDate', 'endDate', 'isCurrent'],
+          limit: 2,
           order: [['startDate', 'DESC']],
         },
       ],
