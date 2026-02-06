@@ -36,4 +36,13 @@ router.delete(
   NotificationController.delete.bind(NotificationController)
 );
 
+// Ruta de testing para enviar notificaciones de prueba (solo en desarrollo)
+if (process.env.NODE_ENV !== 'production') {
+  router.post(
+    '/test-notification',
+    NotificationController.sendTestNotification?.bind(NotificationController) || 
+    ((req, res) => res.status(501).json({ message: 'Test notification endpoint not implemented' }))
+  );
+}
+
 module.exports = router;

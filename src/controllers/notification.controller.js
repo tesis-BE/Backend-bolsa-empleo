@@ -77,6 +77,47 @@ class NotificationController {
       return res.status(500).json(ApiResponse.error(error.message));
     }
   }
+
+  // Método de testing para enviar notificaciones de prueba (solo desarrollo)
+  async sendTestNotification(req, res) {
+    try {
+      if (process.env.NODE_ENV === 'production') {
+        return res.status(403).json(ApiResponse.error('No disponible en producción'));
+      }
+
+      const { 
+        eventType = 'new_message', 
+        title = 'Notificación de prueba', 
+        message = 'Esta es una notificación de testing',
+        relatedId = null 
+      } = req.body;
+
+      console.log('🧪 [TEST] Enviando notificación de prueba:', {
+        userId: req.user.id,
+        eventType,
+        title,
+        message,
+        relatedId
+      });
+
+      // Crear la notificación
+      const notification = await NotificationService.create({
+        userId: req.user.id,
+        eventType,
+        title,
+        message,
+        relatedId,
+        data: { test: true, timestamp: new Date().toISOString() }
+      });
+
+      return res.status(200).json(
+        ApiResponse.success('Notificación de prueba enviada', notification)
+      );
+    } catch (error) {
+      console.error('❌ [TEST] Error enviando notificación de prueba:', error);
+      return res.status(500).json(ApiResponse.error(error.message));
+    }
+  }
 }
 
 module.exports = new NotificationController();

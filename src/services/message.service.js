@@ -84,6 +84,22 @@ class MessageService extends BaseService {
       });
     }
 
+    // Emitir mensaje por socket en tiempo real
+    if (global.io) {
+      const messageData = {
+        id: message.id,
+        conversationId: Number(conversationId),
+        senderId,
+        senderName: `${sender.firstName} ${sender.lastName}`,
+        content,
+        attachmentUrl,
+        createdAt: message.createdAt,
+        isRead: false
+      };
+      
+      global.io.to(`conversation_${conversationId}`).emit('new_message', messageData);
+    }
+
     // Retornar mensaje con datos del sender
     return Message.findByPk(message.id, {
       include: [

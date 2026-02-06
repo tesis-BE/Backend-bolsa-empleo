@@ -61,8 +61,9 @@ app.use('/api/v1', routes);
 // Socket.IO middleware para autenticación
 const { verifyToken } = require('./utils/jwt.util');
 
-io.use((socket, next) => {
+const authMiddleware = (socket, next) => {
   const token = socket.handshake.auth.token;
+  
   if (!token) {
     return next(new Error('Token no proporcionado'));
   }
@@ -76,14 +77,18 @@ io.use((socket, next) => {
   } catch (error) {
     next(new Error('Token inválido o expirado'));
   }
-});
+};
+
+// Aplicar middleware al socket principal
+io.use(authMiddleware);
 
 // Socket.IO event listeners
 require('./socket/chat.socket')(io);
 const notificationSocket = require('./socket/notification.socket')(io);
 
-// Hacer disponible el socket de notificaciones globalmente
+// Hacer disponible el socket de notificaciones y io globalmente
 global.notificationSocket = notificationSocket;
+global.io = io;
 
 // Error handling
 app.use(errorHandler);

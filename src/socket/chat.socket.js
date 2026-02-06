@@ -104,11 +104,12 @@ module.exports = (io) => {
 
           const messageData = {
             id: message.id,
-            conversationId,
+            conversationId: Number(conversationId), // Asegurar que sea número
             senderId: socket.userId,
             senderName: `${sender.firstName} ${sender.lastName}`,
             content,
             createdAt: message.createdAt,
+            isRead: false
           };
 
           // Actualizar última actividad de la conversación
@@ -119,7 +120,7 @@ module.exports = (io) => {
 
           // Emitir a ambos usuarios en la conversación
           io.to(`conversation_${conversationId}`).emit(
-            'receive_message',
+            'new_message',
             messageData
           );
         } catch (error) {
@@ -162,7 +163,7 @@ module.exports = (io) => {
           }
         );
 
-        io.to(`conversation_${conversationId}`).emit('messages_read', {
+        io.to(`conversation_${conversationId}`).emit('message_read', {
           messageIds,
         });
       } catch (error) {

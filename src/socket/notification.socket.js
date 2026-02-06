@@ -5,9 +5,29 @@ const connectedUsers = new Map();
 
 module.exports = (io) => {
   const notificationNamespace = io.of('/notifications');
+  
+  // Aplicar middleware de autenticación al namespace
+  notificationNamespace.use((socket, next) => {
+    const token = socket.handshake.auth.token;
+    
+    if (!token) {
+      return next(new Error('Token no proporcionado'));
+    }
+
+    try {
+      const { verifyToken } = require('../utils/jwt.util');
+      const decoded = verifyToken(token);
+      socket.userId = decoded.id;
+      socket.userType = decoded.userType;
+      socket.companyId = decoded.companyId;
+      next();
+    } catch (error) {
+      next(new Error('Token inválido o expirado'));
+    }
+  });
 
   notificationNamespace.on('connection', (socket) => {
-    const userId = socket.userId; // Viene del middleware de autenticación
+    const userId = socket.userId;
 
     if (!userId) {
       socket.emit('error', { message: 'Usuario no autenticado' });
@@ -15,20 +35,15 @@ module.exports = (io) => {
       return;
     }
 
-    // Registrar usuario conectado
     connectedUsers.set(userId, socket.id);
-
-    // Unir al usuario a su sala personal
     socket.join(`user_${userId}`);
 
-    // Confirmar conexión exitosa
     socket.emit('connected', {
       message: 'Conectado a notificaciones',
       userId,
     });
 
-    // Desconexión
-    socket.on('disconnect', () => {
+    socket.on('disconnect', (reason) => {
       connectedUsers.delete(userId);
     });
 
@@ -65,10 +80,8 @@ module.exports = (io) => {
     });
   });
 
-  // Función helper para enviar notificaciones
   const sendNotification = async (userId, notification) => {
     try {
-      // Emitir a la sala del usuario
       notificationNamespace.to(`user_${userId}`).emit('new_notification', {
         id: notification.id,
         type: notification.type,
@@ -79,7 +92,7 @@ module.exports = (io) => {
         createdAt: notification.createdAt,
       });
     } catch (error) {
-      console.error('Error enviando notificación:', error);
+      console.error('Error enviando notificación:', error.message);
     }
   };
 
