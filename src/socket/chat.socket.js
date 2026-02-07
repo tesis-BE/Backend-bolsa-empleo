@@ -1,4 +1,4 @@
-const { Message, Conversation, User } = require('../models');
+const { Message, Conversation, User, Notification } = require('../models');
 const { createSocketRateLimiter } = require('../utils/socketRateLimiter.util');
 
 // Rate limiter: 20 mensajes por minuto
@@ -8,7 +8,13 @@ const messageLimiter = createSocketRateLimiter({
   blockDurationMs: 300000,
 });
 
-module.exports = (io) => {
+let notificationSocketHandler = null;
+
+module.exports = (io, notificationHandler) => {
+  // Guardar referencia al handler de notificaciones
+  if (notificationHandler) {
+    notificationSocketHandler = notificationHandler;
+  }
   io.on('connection', (socket) => {
     // Unirse a una conversación
     socket.on('join_conversation', async ({ conversationId, userId }) => {
@@ -129,6 +135,31 @@ module.exports = (io) => {
             'new_message',
             messageData
           );
+
+          // Determinar el receptor del mensaje
+          const recipientId = conversation.graduateId === socket.userId 
+            ? conversation.recruiterId 
+            : conversation.graduateId;
+
+          // Crear y enviar notificación al receptor
+          if (recipientId && notificationSocketHandler) {
+            try {
+              const notification = await Notification.create({
+                userId: recipientId,
+                title: 'Nuevo mensaje',
+                message: `${sender.firstName} ${sender.lastName} te ha enviado un mensaje`,
+                type: 'info',
+                eventType: 'new_message',
+                relatedId: conversationId,
+                isRead: false,
+              });
+
+              // Emitir notificación por socket en tiempo real
+              notificationSocketHandler.sendNotification(recipientId, notification);
+            } catch (notifError) {
+              console.error('Error creando/enviando notificación:', notifError);
+            }
+          }
         } catch (error) {
           socket.emit('error', { message: error.message });
         }

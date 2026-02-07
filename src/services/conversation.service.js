@@ -50,8 +50,9 @@ class ConversationService extends BaseService {
 
   async getByUser(userId, page = 1, pageSize = 20) {
     const { Op } = require('sequelize');
+    const sequelize = require('../config/database');
 
-    return this.paginate({
+    const result = await this.paginate({
       page,
       pageSize,
       where: {
@@ -73,15 +74,43 @@ class ConversationService extends BaseService {
           as: 'recruiter',
           attributes: ['id', 'firstName', 'lastName', 'email', 'photoUrl'],
         },
-        {
-          model: Message,
-          as: 'messages',
-          limit: 1,
-          order: [['createdAt', 'DESC']],
-        },
       ],
       order: [['updatedAt', 'DESC']],
     });
+
+    // Agregar lastMessage y unreadCount para cada conversación
+    if (result.data && result.data.length > 0) {
+      for (const conversation of result.data) {
+        // Obtener el último mensaje
+        const lastMessage = await Message.findOne({
+          where: { conversationId: conversation.id },
+          order: [['createdAt', 'DESC']],
+          limit: 1,
+          include: [
+            {
+              model: User,
+              as: 'sender',
+              attributes: ['id', 'firstName', 'lastName', 'photoUrl'],
+            },
+          ],
+        });
+
+        // Calcular mensajes no leídos
+        const unreadCount = await Message.count({
+          where: {
+            conversationId: conversation.id,
+            senderId: { [Op.ne]: userId },
+            isRead: false,
+          },
+        });
+
+        // Agregar campos virtuales
+        conversation.dataValues.lastMessage = lastMessage || null;
+        conversation.dataValues.unreadCount = unreadCount;
+      }
+    }
+
+    return result;
   }
 
   async getByApplication(applicationId) {

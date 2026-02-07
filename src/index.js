@@ -83,8 +83,10 @@ const authMiddleware = (socket, next) => {
 io.use(authMiddleware);
 
 // Socket.IO event listeners
-require('./socket/chat.socket')(io);
+// Primero inicializar notificaciones para obtener el handler
 const notificationSocket = require('./socket/notification.socket')(io);
+// Luego inicializar chat pasando el handler de notificaciones
+require('./socket/chat.socket')(io, notificationSocket);
 
 // Hacer disponible el socket de notificaciones y io globalmente
 global.notificationSocket = notificationSocket;
