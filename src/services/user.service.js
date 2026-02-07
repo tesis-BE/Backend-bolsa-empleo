@@ -11,6 +11,9 @@ const {
   Project,
   Faculty,
   University,
+  Role,
+  Permission,
+  UserRole,
 } = require('../models');
 const { Op } = require('sequelize');
 
@@ -247,6 +250,124 @@ class UserService extends BaseService {
         pageSize,
         totalPages: Math.ceil(count / pageSize),
       },
+    };
+  }
+
+  // ==================== ROLES & PERMISSIONS ====================
+
+  async assignRole(userId, roleId) {
+    const user = await User.findByPk(userId);
+    if (!user) throw new Error('Usuario no encontrado');
+
+    const role = await Role.findByPk(roleId);
+    if (!role) throw new Error('Rol no encontrado');
+
+    const [userRole, created] = await UserRole.findOrCreate({
+      where: { userId, roleId },
+    });
+
+    if (!created) throw new Error('El usuario ya tiene este rol asignado');
+    return userRole;
+  }
+
+  async removeRole(userId, roleId) {
+    const deleted = await UserRole.destroy({
+      where: { userId, roleId },
+    });
+    if (!deleted) throw new Error('El usuario no tiene este rol asignado');
+    return true;
+  }
+
+  async getUserRoles(userId) {
+    const user = await User.findByPk(userId, {
+      attributes: ['id', 'firstName', 'lastName', 'email'],
+      include: [
+        {
+          model: Role,
+          as: 'roles',
+          through: { attributes: [] },
+          include: [
+            {
+              model: Permission,
+              as: 'permissions',
+              through: { attributes: [] },
+            },
+          ],
+        },
+      ],
+    });
+    if (!user) throw new Error('Usuario no encontrado');
+    return user.roles;
+  }
+
+  async getUserPermissions(userId) {
+    const user = await User.findByPk(userId, {
+      include: [
+        {
+          model: Role,
+          as: 'roles',
+          through: { attributes: [] },
+          include: [
+            {
+              model: Permission,
+              as: 'permissions',
+              through: { attributes: [] },
+            },
+          ],
+        },
+      ],
+    });
+    if (!user) throw new Error('Usuario no encontrado');
+
+    // Extraer permisos únicos de todos los roles
+    const permissionsMap = new Map();
+    for (const role of user.roles || []) {
+      for (const perm of role.permissions || []) {
+        if (!permissionsMap.has(perm.name)) {
+          permissionsMap.set(perm.name, {
+            id: perm.id,
+            name: perm.name,
+            module: perm.module,
+            action: perm.action,
+            description: perm.description,
+          });
+        }
+      }
+    }
+    return Array.from(permissionsMap.values());
+  }
+
+  async getUserWithRolesAndPermissions(userId) {
+    const user = await User.findByPk(userId, {
+      attributes: { exclude: ['password'] },
+      include: [
+        {
+          model: Role,
+          as: 'roles',
+          through: { attributes: [] },
+          include: [
+            {
+              model: Permission,
+              as: 'permissions',
+              through: { attributes: [] },
+            },
+          ],
+        },
+      ],
+    });
+    if (!user) return null;
+
+    // Extraer nombres de permisos únicos
+    const permissionNames = new Set();
+    for (const role of user.roles || []) {
+      for (const perm of role.permissions || []) {
+        permissionNames.add(perm.name);
+      }
+    }
+
+    return {
+      user,
+      permissions: Array.from(permissionNames),
     };
   }
 }

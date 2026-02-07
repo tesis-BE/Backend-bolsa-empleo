@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const { User, Role, Permission } = require('../models');
 const { Op } = require('sequelize');
 const {
   generateToken,
@@ -6,6 +6,21 @@ const {
   verifyToken,
 } = require('../utils/jwt.util');
 const { USER_TYPES } = require('../config/constants');
+
+const USER_ROLES_INCLUDE = [
+  {
+    model: Role,
+    as: 'roles',
+    through: { attributes: [] },
+    include: [
+      {
+        model: Permission,
+        as: 'permissions',
+        through: { attributes: [] },
+      },
+    ],
+  },
+];
 
 class AuthService {
   async register(data) {
@@ -63,6 +78,7 @@ class AuthService {
       where: {
         [Op.or]: [{ email }, { institutionalEmail: email }],
       },
+      include: USER_ROLES_INCLUDE,
     });
     if (!user) {
       throw new Error('Email o contraseña incorrectos');
@@ -95,6 +111,7 @@ class AuthService {
       attributes: {
         exclude: ['password'],
       },
+      include: USER_ROLES_INCLUDE,
     });
 
     if (!user) {
@@ -147,6 +164,25 @@ class AuthService {
   }
 
   formatUserResponse(user) {
+    // Extraer permisos únicos de todos los roles
+    const permissionNames = new Set();
+    const roles = [];
+
+    if (user.roles) {
+      for (const role of user.roles) {
+        roles.push({
+          id: role.id,
+          name: role.name,
+          description: role.description,
+        });
+        if (role.permissions) {
+          for (const perm of role.permissions) {
+            permissionNames.add(perm.name);
+          }
+        }
+      }
+    }
+
     return {
       id: user.id,
       email: user.email,
@@ -164,6 +200,8 @@ class AuthService {
       availableForWork: user.availableForWork,
       isActive: user.isActive,
       createdAt: user.createdAt,
+      roles,
+      permissions: Array.from(permissionNames),
     };
   }
 }

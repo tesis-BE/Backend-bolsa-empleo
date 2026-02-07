@@ -11,6 +11,7 @@ const Notification = require('./Notification');
 const Role = require('./Role');
 const Permission = require('./Permission');
 const RolePermission = require('./RolePermission');
+const UserRole = require('./UserRole');
 const University = require('./University');
 const Faculty = require('./Faculty');
 const Career = require('./Career');
@@ -88,8 +89,8 @@ Notification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 User.hasMany(Notification, { foreignKey: 'userId', as: 'notifications' });
 
 // User -> Role (N:M)
-User.belongsToMany(Role, { through: 'UserRoles', foreignKey: 'userId' });
-Role.belongsToMany(User, { through: 'UserRoles', foreignKey: 'roleId' });
+User.belongsToMany(Role, { through: UserRole, foreignKey: 'userId', otherKey: 'roleId', as: 'roles' });
+Role.belongsToMany(User, { through: UserRole, foreignKey: 'roleId', otherKey: 'userId', as: 'users' });
 
 // Role -> Permission (N:N)
 Role.belongsToMany(Permission, {
@@ -168,4 +169,5 @@ module.exports = {
   Education,
   Certification,
   Project,
+  UserRole,
 };

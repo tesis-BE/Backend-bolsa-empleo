@@ -322,6 +322,55 @@ class UserController extends BaseController {
       return res.status(400).json(ApiResponse.error(error.message));
     }
   }
+
+  // ==================== ROLES & PERMISSIONS ====================
+
+  async assignRole(req, res) {
+    try {
+      const { id } = req.params;
+      const { roleId } = req.body;
+
+      if (!roleId) {
+        return res.status(400).json(ApiResponse.error('roleId es requerido'));
+      }
+
+      const result = await UserService.assignRole(parseInt(id), parseInt(roleId));
+      return res.status(200).json(ApiResponse.success('Rol asignado al usuario', result));
+    } catch (error) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
+
+  async removeRole(req, res) {
+    try {
+      const { id, roleId } = req.params;
+
+      await UserService.removeRole(parseInt(id), parseInt(roleId));
+      return res.status(200).json(ApiResponse.success('Rol removido del usuario'));
+    } catch (error) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
+
+  async getUserRoles(req, res) {
+    try {
+      const { id } = req.params;
+      const roles = await UserService.getUserRoles(parseInt(id));
+      return res.status(200).json(ApiResponse.success('Roles del usuario', roles));
+    } catch (error) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
+
+  async getUserPermissions(req, res) {
+    try {
+      const { id } = req.params;
+      const permissions = await UserService.getUserPermissions(parseInt(id));
+      return res.status(200).json(ApiResponse.success('Permisos del usuario', permissions));
+    } catch (error) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
 }
 
 module.exports = new UserController();

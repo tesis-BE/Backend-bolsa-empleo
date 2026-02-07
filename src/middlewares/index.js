@@ -5,6 +5,7 @@ const {
   isRecruiter,
   isGraduate,
 } = require('./role.middleware');
+const { hasPermission, hasAnyPermission } = require('./permission.middleware');
 const errorHandler = require('./error.middleware');
 const requestLogger = require('./request-logger.middleware');
 
@@ -14,6 +15,8 @@ module.exports = {
   isAdmin,
   isRecruiter,
   isGraduate,
+  hasPermission,
+  hasAnyPermission,
   errorHandler,
   requestLogger,
 };

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const UserController = require('../controllers/user.controller');
-const { authMiddleware } = require('../middlewares');
+const { authMiddleware, isAdmin } = require('../middlewares');
 const { userValidator, authValidator } = require('../validators');
 const { upload, validateFileContent } = require('../config/multer');
 
@@ -87,6 +87,29 @@ router.patch(
 router.patch(
   '/:id/user-type',
   UserController.changeUserType.bind(UserController)
+);
+
+// Roles del usuario (admin)
+router.get(
+  '/:id/roles',
+  isAdmin,
+  UserController.getUserRoles.bind(UserController)
+);
+router.post(
+  '/:id/roles',
+  isAdmin,
+  UserController.assignRole.bind(UserController)
+);
+router.delete(
+  '/:id/roles/:roleId',
+  isAdmin,
+  UserController.removeRole.bind(UserController)
+);
+
+// Permisos del usuario
+router.get(
+  '/:id/permissions',
+  UserController.getUserPermissions.bind(UserController)
 );
 
 // Actualizar usuario
