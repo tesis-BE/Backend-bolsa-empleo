@@ -40,8 +40,15 @@ class RoleController extends BaseController {
           .json(ApiResponse.error('Error de validación', errors.array()));
       }
 
-      const role = await RoleService.create(req.body);
-      return res.status(201).json(ApiResponse.created('Rol creado', role));
+      const { permissionIds, ...roleData } = req.body;
+      const role = await RoleService.create(roleData);
+
+      if (permissionIds && Array.isArray(permissionIds) && permissionIds.length > 0) {
+        await RoleService.updatePermissions(role.id, permissionIds);
+      }
+
+      const roleWithPermissions = await RoleService.findWithPermissions(role.id);
+      return res.status(201).json(ApiResponse.created('Rol creado', roleWithPermissions));
     } catch (error) {
       return res.status(400).json(ApiResponse.error(error.message));
     }
@@ -57,13 +64,14 @@ class RoleController extends BaseController {
       }
 
       const { permissionIds, ...roleData } = req.body;
-      const role = await RoleService.update(req.params.id, roleData);
+      await RoleService.update(req.params.id, roleData);
 
       if (permissionIds && Array.isArray(permissionIds)) {
         await RoleService.updatePermissions(req.params.id, permissionIds);
       }
 
-      return res.status(200).json(ApiResponse.success('Rol actualizado', role));
+      const updatedRole = await RoleService.findWithPermissions(req.params.id);
+      return res.status(200).json(ApiResponse.success('Rol actualizado', updatedRole));
     } catch (error) {
       return res.status(400).json(ApiResponse.error(error.message));
     }
