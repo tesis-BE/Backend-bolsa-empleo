@@ -16,11 +16,6 @@ const hasPermission = (requiredPermissions) => {
         return res.status(401).json(ApiResponse.error('No autenticado'));
       }
 
-      // Admin siempre tiene acceso total
-      if (req.user.userType === 'admin') {
-        return next();
-      }
-
       const userPermissions = await UserService.getUserPermissions(req.user.id);
       const permissionNames = userPermissions.map((p) => p.name);
 
@@ -51,11 +46,6 @@ const hasAnyPermission = (requiredPermissions) => {
     try {
       if (!req.user || !req.user.id) {
         return res.status(401).json(ApiResponse.error('No autenticado'));
-      }
-
-      // Admin siempre tiene acceso total
-      if (req.user.userType === 'admin') {
-        return next();
       }
 
       const userPermissions = await UserService.getUserPermissions(req.user.id);

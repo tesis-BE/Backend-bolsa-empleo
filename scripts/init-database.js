@@ -80,6 +80,11 @@ async function initializeDatabase() {
 
     console.log('✅ Permisos creados');
 
+    // Asignar todos los permisos al rol admin
+    const allPermissions = await Permission.findAll();
+    await adminRole[0].setPermissions(allPermissions);
+    console.log('✅ Permisos asignados al rol admin');
+
     // Crear usuario admin
     console.log('🔄 Creando usuario administrador...');
 
@@ -100,6 +105,9 @@ async function initializeDatabase() {
           e.message
         );
       }
+
+      // Asegurar rol admin asignado
+      await existingAdmin.setRoles([adminRole[0]]);
     } else {
       const hashedPassword = await bcrypt.hash('123456', 10);
 
