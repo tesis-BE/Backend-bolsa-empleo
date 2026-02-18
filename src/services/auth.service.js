@@ -1,4 +1,4 @@
-const { User, Role, Permission } = require('../models');
+const { User, Role, Permission, UserRole } = require('../models');
 const { Op } = require('sequelize');
 const {
   generateToken,
@@ -62,14 +62,24 @@ class AuthService {
       cedula,
     });
 
-    // Generar tokens
+    const GRADUATE_ROLE_ID = 3;
+    if (userType === USER_TYPES.GRADUATE) {
+      await UserRole.findOrCreate({
+        where: { userId: user.id, roleId: GRADUATE_ROLE_ID },
+      });
+    }
+
+    const userWithRoles = await User.findByPk(user.id, {
+      include: USER_ROLES_INCLUDE,
+    });
+
     const token = generateToken(user.id, user.userType);
     const refreshToken = generateRefreshToken(user.id);
 
     return {
       token,
       refreshToken,
-      user: this.formatUserResponse(user),
+      user: this.formatUserResponse(userWithRoles),
     };
   }
 
@@ -84,18 +94,15 @@ class AuthService {
       throw new Error('Email o contraseña incorrectos');
     }
 
-    // Verificar contraseña
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       throw new Error('Email o contraseña incorrectos');
     }
 
-    // Verificar si está activo
     if (!user.isActive) {
       throw new Error('Cuenta desactivada');
     }
 
-    // Generar tokens
     const token = generateToken(user.id, user.userType);
     const refreshToken = generateRefreshToken(user.id);
 
@@ -125,13 +132,11 @@ class AuthService {
     try {
       const decoded = verifyToken(refreshTokenString);
 
-      // Buscar usuario
       const user = await User.findByPk(decoded.userId);
       if (!user || !user.isActive) {
         throw new Error('Token inválido');
       }
 
-      // Generar nuevos tokens
       const token = generateToken(user.id, user.userType);
       const newRefreshToken = generateRefreshToken(user.id);
 
@@ -150,13 +155,11 @@ class AuthService {
       throw new Error('Usuario no encontrado');
     }
 
-    // Verificar contraseña actual
     const isPasswordValid = await user.comparePassword(currentPassword);
     if (!isPasswordValid) {
       throw new Error('La contraseña actual es incorrecta');
     }
 
-    // Actualizar contraseña
     user.password = newPassword;
     await user.save();
 
@@ -164,7 +167,6 @@ class AuthService {
   }
 
   formatUserResponse(user) {
-    // Extraer permisos únicos de todos los roles
     const permissionNames = new Set();
     const roles = [];
 

@@ -185,7 +185,7 @@ class UserController extends BaseController {
           .json(ApiResponse.error('Error de validación', errors.array()));
       }
 
-      const { firstName, lastName, email, password, userType } = req.body;
+      const { firstName, lastName, email, password, userType, phone, institutionalEmail, cedula, facultyId } = req.body;
 
       const existingUser = await UserService.findByEmail(email);
       if (existingUser) {
@@ -200,6 +200,10 @@ class UserController extends BaseController {
         email,
         password,
         userType,
+        phone,
+        institutionalEmail,
+        cedula,
+        facultyId,
         isActive: true,
       });
 
@@ -227,18 +231,20 @@ class UserController extends BaseController {
       }
 
       const { id } = req.params;
-      const { firstName, lastName, userType } = req.body;
+      const { firstName, lastName, userType, phone, institutionalEmail, cedula, facultyId } = req.body;
 
       const user = await UserService.findById(id);
       if (!user) {
         return res.status(404).json(ApiResponse.error('Usuario no encontrado'));
       }
 
-      const updated = await UserService.update(id, {
-        firstName,
-        lastName,
-        userType,
-      });
+      const updateData = { firstName, lastName, userType };
+      if (phone !== undefined) updateData.phone = phone;
+      if (institutionalEmail !== undefined) updateData.institutionalEmail = institutionalEmail || null;
+      if (cedula !== undefined) updateData.cedula = cedula;
+      if (facultyId !== undefined) updateData.facultyId = facultyId;
+
+      const updated = await UserService.update(id, updateData);
 
       const { password: _, ...userWithoutPassword } = updated.toJSON();
       return res
@@ -322,8 +328,6 @@ class UserController extends BaseController {
       return res.status(400).json(ApiResponse.error(error.message));
     }
   }
-
-  // ==================== ROLES & PERMISSIONS ====================
 
   async assignRole(req, res) {
     try {
