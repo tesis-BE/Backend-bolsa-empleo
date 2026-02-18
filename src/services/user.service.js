@@ -100,7 +100,7 @@ class UserService extends BaseService {
     search,
     facultyId,
   }) {
-    const where = { userType: 'graduate' };
+    const where = { userType: 'graduate', isActive: true };
 
     if (availableForWork !== undefined) {
       where.availableForWork = availableForWork === 'true';
@@ -226,6 +226,8 @@ class UserService extends BaseService {
 
     if (isActive !== undefined) {
       where.isActive = isActive;
+    } else {
+      where.isActive = true;
     }
 
     const { count, rows } = await User.findAndCountAll({

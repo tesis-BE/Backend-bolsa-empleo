@@ -32,7 +32,9 @@ class AuthService {
       institutionalEmail,
       phone,
       userType = USER_TYPES.GRADUATE,
+      universityId,
       facultyId,
+      careerId,
       cedula,
     } = data;
 
@@ -58,7 +60,9 @@ class AuthService {
       institutionalEmail,
       phone,
       userType,
+      universityId,
       facultyId,
+      careerId,
       cedula,
     });
 

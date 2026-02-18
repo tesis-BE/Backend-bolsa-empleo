@@ -58,6 +58,10 @@ const Education = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
+    careerId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
   {
     tableName: 'educations',

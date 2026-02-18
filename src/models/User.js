@@ -90,7 +90,15 @@ const User = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
+    universityId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
     facultyId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    careerId: {
       type: DataTypes.INTEGER,
       allowNull: true,
     },

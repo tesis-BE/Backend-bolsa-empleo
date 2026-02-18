@@ -24,10 +24,19 @@ const register = [
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage('El apellido debe tener entre 2 y 50 caracteres'),
+  body('universityId')
+    .notEmpty()
+    .withMessage('La extensión es requerida')
+    .isInt()
+    .withMessage('El ID de extensión debe ser un número'),
   body('facultyId')
     .optional()
     .isInt()
     .withMessage('El ID de facultad debe ser un número'),
+  body('careerId')
+    .optional()
+    .isInt()
+    .withMessage('El ID de carrera debe ser un número'),
   body('userType')
     .optional()
     .isIn(['graduate', 'recruiter', 'admin'])

@@ -16,6 +16,8 @@ const migrationFiles = [
   '20260202-create-careers-table.sql',
   '20260203-chat-notifications-columns.sql',
   '20260207-create-user-roles-table.sql',
+  '20260218-add-university-career-to-users.sql',
+  '20260218-add-careerID-to-education.sql',
 ];
 
 async function runMigrations() {

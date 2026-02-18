@@ -6,10 +6,6 @@ const educationValidator = {
       .optional({ nullable: true, checkFalsy: true })
       .isLength({ max: 255 })
       .withMessage('La institución no puede exceder 255 caracteres'),
-    body('institutionName')
-      .optional({ nullable: true, checkFalsy: true })
-      .isLength({ max: 255 })
-      .withMessage('La institución no puede exceder 255 caracteres'),
     body('degree')
       .optional({ nullable: true, checkFalsy: true })
       .isLength({ max: 255 })
@@ -46,6 +42,18 @@ const educationValidator = {
       .optional()
       .isLength({ max: 2000 })
       .withMessage('La descripción no puede exceder 2000 caracteres'),
+    body('facultyId')
+      .optional({ nullable: true })
+      .isInt()
+      .withMessage('El ID de facultad debe ser un número'),
+    body('careerId')
+      .optional({ nullable: true })
+      .isInt()
+      .withMessage('El ID de carrera debe ser un número'),
+    body('universityId')
+      .optional({ nullable: true })
+      .isInt()
+      .withMessage('El ID de extensión debe ser un número'),
     body('isCurrent')
       .optional()
       .isBoolean()
@@ -58,10 +66,6 @@ const educationValidator = {
       .optional({ nullable: true, checkFalsy: true })
       .isLength({ max: 255 })
       .withMessage('La institución no puede exceder 255 caracteres'),
-    body('institutionName')
-      .optional({ nullable: true, checkFalsy: true })
-      .isLength({ max: 255 })
-      .withMessage('La institución no puede exceder 255 caracteres'),
     body('degree')
       .optional({ nullable: true, checkFalsy: true })
       .isLength({ max: 255 })
@@ -98,6 +102,18 @@ const educationValidator = {
       .optional()
       .isLength({ max: 2000 })
       .withMessage('La descripción no puede exceder 2000 caracteres'),
+    body('facultyId')
+      .optional({ nullable: true })
+      .isInt()
+      .withMessage('El ID de facultad debe ser un número'),
+    body('careerId')
+      .optional({ nullable: true })
+      .isInt()
+      .withMessage('El ID de carrera debe ser un número'),
+    body('universityId')
+      .optional({ nullable: true })
+      .isInt()
+      .withMessage('El ID de extensión debe ser un número'),
     body('isCurrent')
       .optional()
       .isBoolean()

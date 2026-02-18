@@ -110,13 +110,25 @@ Permission.belongsToMany(Role, {
 Faculty.belongsTo(University, { foreignKey: 'universityId', as: 'university' });
 University.hasMany(Faculty, { foreignKey: 'universityId', as: 'faculties' });
 
+// User -> University (N:1)
+User.belongsTo(University, { foreignKey: 'universityId', as: 'university' });
+University.hasMany(User, { foreignKey: 'universityId', as: 'users' });
+
 // User -> Faculty (N:1) - graduados pertenecen a una facultad
 User.belongsTo(Faculty, { foreignKey: 'facultyId', as: 'faculty' });
 Faculty.hasMany(User, { foreignKey: 'facultyId', as: 'graduates' });
 
+// User -> Career (N:1)
+User.belongsTo(Career, { foreignKey: 'careerId', as: 'career' });
+Career.hasMany(User, { foreignKey: 'careerId', as: 'graduates' });
+
 // Education -> Faculty (N:1)
 Education.belongsTo(Faculty, { foreignKey: 'facultyId', as: 'faculty' });
 Faculty.hasMany(Education, { foreignKey: 'facultyId', as: 'educations' });
+
+// Education -> Career (N:1)
+Education.belongsTo(Career, { foreignKey: 'careerId', as: 'career' });
+Career.hasMany(Education, { foreignKey: 'careerId', as: 'educations' });
 
 // Faculty -> Career (1:N)
 Career.belongsTo(Faculty, { foreignKey: 'facultyId', as: 'faculty' });

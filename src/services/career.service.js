@@ -11,6 +11,8 @@ class CareerService extends BaseService {
 
     if (filters.isActive !== undefined) {
       where.isActive = filters.isActive;
+    } else {
+      where.isActive = true;
     }
 
     if (filters.facultyId) {

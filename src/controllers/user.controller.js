@@ -185,7 +185,7 @@ class UserController extends BaseController {
           .json(ApiResponse.error('Error de validación', errors.array()));
       }
 
-      const { firstName, lastName, email, password, userType, phone, institutionalEmail, cedula, facultyId } = req.body;
+      const { firstName, lastName, email, password, userType, phone, institutionalEmail, cedula, universityId, facultyId, careerId } = req.body;
 
       const existingUser = await UserService.findByEmail(email);
       if (existingUser) {
@@ -203,7 +203,9 @@ class UserController extends BaseController {
         phone,
         institutionalEmail,
         cedula,
+        universityId,
         facultyId,
+        careerId,
         isActive: true,
       });
 
@@ -231,7 +233,7 @@ class UserController extends BaseController {
       }
 
       const { id } = req.params;
-      const { firstName, lastName, userType, phone, institutionalEmail, cedula, facultyId } = req.body;
+      const { firstName, lastName, userType, phone, institutionalEmail, cedula, universityId, facultyId, careerId } = req.body;
 
       const user = await UserService.findById(id);
       if (!user) {
@@ -242,7 +244,9 @@ class UserController extends BaseController {
       if (phone !== undefined) updateData.phone = phone;
       if (institutionalEmail !== undefined) updateData.institutionalEmail = institutionalEmail || null;
       if (cedula !== undefined) updateData.cedula = cedula;
+      if (universityId !== undefined) updateData.universityId = universityId;
       if (facultyId !== undefined) updateData.facultyId = facultyId;
+      if (careerId !== undefined) updateData.careerId = careerId;
 
       const updated = await UserService.update(id, updateData);
 

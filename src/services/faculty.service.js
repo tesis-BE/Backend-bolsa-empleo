@@ -11,6 +11,8 @@ class FacultyService extends BaseService {
 
     if (filters.isActive !== undefined) {
       where.isActive = filters.isActive;
+    } else {
+      where.isActive = true;
     }
 
     if (filters.universityId) {
@@ -32,7 +34,7 @@ class FacultyService extends BaseService {
 
   async findByUniversity(universityId) {
     return this.model.findAll({
-      where: { universityId },
+      where: { universityId, isActive: true },
       order: [['name', 'ASC']],
     });
   }

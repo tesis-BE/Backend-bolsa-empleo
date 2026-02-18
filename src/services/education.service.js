@@ -17,7 +17,6 @@ class EducationService extends BaseService {
     const payload = {
       userId,
       ...data,
-      institution: data.institution ?? data.institutionName,
     };
     return await Education.create(payload);
   }
@@ -31,10 +30,7 @@ class EducationService extends BaseService {
       throw new Error('Educación no encontrada');
     }
 
-    const payload = {
-      ...data,
-      institution: data.institution ?? data.institutionName ?? education.institution,
-    };
+    const payload = { ...data };
     await education.update(payload);
     return education;
   }
