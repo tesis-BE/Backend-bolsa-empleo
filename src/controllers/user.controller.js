@@ -11,14 +11,16 @@ class UserController extends BaseController {
 
   async getGraduates(req, res) {
     try {
-      const { page = 1, pageSize = 12, search, availableForWork, facultyId } = req.query;
-      console.log('[getGraduates] Query recibido:', { page, pageSize, search, availableForWork, facultyId });
+      const { page = 1, pageSize = 12, search, availableForWork, facultyId, careerId, graduationYear } = req.query;
+      console.log('[getGraduates] Query recibido:', { page, pageSize, search, availableForWork, facultyId, careerId, graduationYear });
       const result = await UserService.searchGraduates({
         page: parseInt(page),
         pageSize: parseInt(pageSize),
         search: search || undefined,
         availableForWork,
         facultyId: facultyId || undefined,
+        careerId: careerId || undefined,
+        graduationYear: graduationYear || undefined,
       });
       console.log('[getGraduates] Total resultados:', result.count ?? result.rows?.length);
       return res

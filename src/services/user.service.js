@@ -11,6 +11,7 @@ const {
   Project,
   Faculty,
   University,
+  Career,
   Role,
   Permission,
   UserRole,
@@ -104,6 +105,8 @@ class UserService extends BaseService {
     availableForWork,
     search,
     facultyId,
+    careerId,
+    graduationYear,
   }) {
     const where = {
       userType: 'graduate',
@@ -121,6 +124,10 @@ class UserService extends BaseService {
 
     if (facultyId) {
       where.facultyId = parseInt(facultyId);
+    }
+
+    if (careerId) {
+      where.careerId = parseInt(careerId);
     }
 
     if (search) {
@@ -145,6 +152,11 @@ class UserService extends BaseService {
           attributes: ['id', 'name'],
           include: [{ model: University, as: 'university', attributes: ['id', 'name'] }],
         },
+        {
+          model: Career,
+          as: 'career',
+          attributes: ['id', 'name'],
+        },
         { 
           model: UserSkill, 
           as: 'skills',
@@ -165,9 +177,10 @@ class UserService extends BaseService {
         {
           model: Education,
           as: 'educations',
-          attributes: ['id', 'institution', 'degree', 'fieldOfStudy', 'graduationYear', 'startDate', 'endDate', 'isCurrent'],
+          attributes: ['id', 'institution', 'degree', 'fieldOfStudy', 'graduationYear', 'startDate', 'endDate', 'isCurrent', 'careerId'],
           limit: 2,
-          order: [['startDate', 'DESC']],
+          order: [['graduationYear', 'DESC'], ['startDate', 'DESC']],
+          ...(graduationYear ? { where: { graduationYear: parseInt(graduationYear) } } : {}),
         },
         {
           model: Certification,
