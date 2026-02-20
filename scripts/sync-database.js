@@ -18,6 +18,8 @@ const migrationFiles = [
   '20260207-create-user-roles-table.sql',
   '20260218-add-university-career-to-users.sql',
   '20260218-add-careerID-to-education.sql',
+  '20260218-add-missing-profile-fields.sql',
+  '20260218-fix-portfolio-enum.sql',
 ];
 
 async function runMigrations() {

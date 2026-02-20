@@ -38,6 +38,10 @@ const educationValidator = {
       .optional()
       .isLength({ max: 50 })
       .withMessage('La calificación no puede exceder 50 caracteres'),
+    body('degreeType')
+      .optional({ nullable: true })
+      .isIn(['Licenciatura', 'Ingeniería', 'Técnico', 'Maestría', 'Doctorado', 'Especialización', 'Diplomado', 'Otro'])
+      .withMessage('Tipo de título inválido'),
     body('description')
       .optional()
       .isLength({ max: 2000 })
@@ -98,6 +102,10 @@ const educationValidator = {
       .optional()
       .isLength({ max: 50 })
       .withMessage('La calificación no puede exceder 50 caracteres'),
+    body('degreeType')
+      .optional({ nullable: true })
+      .isIn(['Licenciatura', 'Ingeniería', 'Técnico', 'Maestría', 'Doctorado', 'Especialización', 'Diplomado', 'Otro'])
+      .withMessage('Tipo de título inválido'),
     body('description')
       .optional()
       .isLength({ max: 2000 })

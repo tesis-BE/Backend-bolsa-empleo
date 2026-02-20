@@ -38,6 +38,10 @@ const Project = sequelize.define(
       type: DataTypes.STRING(500),
       allowNull: true,
     },
+    repositoryUrl: {
+      type: DataTypes.STRING(500),
+      allowNull: true,
+    },
     thumbnailUrl: {
       type: DataTypes.STRING(500),
       allowNull: true,

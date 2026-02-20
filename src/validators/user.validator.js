@@ -33,6 +33,10 @@ const addSkill = [
 const addPortfolioLink = [
   body('title').trim().notEmpty().withMessage('El título es requerido'),
   body('url').notEmpty().withMessage('La URL es requerida'),
+  body('type')
+    .optional({ nullable: true })
+    .isIn(['github', 'linkedin', 'website', 'behance', 'dribbble', 'other'])
+    .withMessage('Tipo de portfolio inválido'),
   body('description').optional().trim(),
 ];
 

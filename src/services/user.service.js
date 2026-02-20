@@ -73,7 +73,10 @@ class UserService extends BaseService {
       updateData.institutionalEmail = null;
     }
 
-    return user.update(updateData);
+    await user.update(updateData);
+    
+    // Retornar el perfil completo con todas las relaciones
+    return this.findById(userId);
   }
 
   async changeUserType(userId, userType) {
@@ -81,7 +84,8 @@ class UserService extends BaseService {
     if (!user) {
       throw new Error('Usuario no encontrado');
     }
-    return user.update({ userType });
+    await user.update({ userType });
+    return this.findById(userId);
   }
 
   async toggleStatus(userId, isActive) {
@@ -89,7 +93,8 @@ class UserService extends BaseService {
     if (!user) {
       throw new Error('Usuario no encontrado');
     }
-    return user.update({ isActive });
+    await user.update({ isActive });
+    return this.findById(userId);
   }
 
   async searchGraduates({
@@ -100,10 +105,18 @@ class UserService extends BaseService {
     search,
     facultyId,
   }) {
-    const where = { userType: 'graduate', isActive: true };
+    const where = {
+      userType: 'graduate',
+      isActive: true,
+    };
 
-    if (availableForWork !== undefined) {
-      where.availableForWork = availableForWork === 'true';
+    if (availableForWork !== undefined && availableForWork !== null && availableForWork !== '') {
+      // Normaliza correctamente tanto si llega como string ('true'/'false') o boolean
+      const parsed = availableForWork === true || availableForWork === 'true';
+      console.log('[searchGraduates] availableForWork recibido:', availableForWork, '(tipo:', typeof availableForWork, ') | parseado como bool:', parsed);
+      where.availableForWork = parsed;
+    } else {
+      console.log('[searchGraduates] Sin filtro availableForWork — devolviendo todos los graduados activos');
     }
 
     if (facultyId) {
@@ -118,7 +131,9 @@ class UserService extends BaseService {
       ];
     }
 
-    return this.paginate({
+    console.log('[searchGraduates] Filtro WHERE aplicado:', JSON.stringify(where));
+
+    const result = await this.paginate({
       page,
       pageSize,
       where,
@@ -154,8 +169,32 @@ class UserService extends BaseService {
           limit: 2,
           order: [['startDate', 'DESC']],
         },
+        {
+          model: Certification,
+          as: 'certifications',
+          attributes: ['id', 'name', 'issuingOrganization', 'issueDate', 'credentialUrl'],
+          limit: 3,
+          order: [['issueDate', 'DESC']],
+        },
+        {
+          model: Project,
+          as: 'projects',
+          attributes: ['id', 'name', 'description', 'technologies', 'projectUrl', 'repositoryUrl'],
+          limit: 3,
+          order: [['startDate', 'DESC']],
+        },
       ],
     });
+
+    if (result.data && result.data.length > 0) {
+      const sample = result.data[0];
+      console.log(
+        `[searchGraduates] Muestra del 1er resultado — id: ${sample.id}, userType: ${sample.userType}, availableForWork: ${sample.availableForWork}, photoUrl: ${sample.photoUrl}`
+      );
+    }
+    console.log(`[searchGraduates] Total graduados encontrados: ${result.pagination.total}`);
+
+    return result;
   }
 
   async getProfile(userId) {
@@ -205,7 +244,8 @@ class UserService extends BaseService {
     if (!user) {
       throw new Error('Usuario no encontrado');
     }
-    return user.update({ availableForWork: available });
+    await user.update({ availableForWork: available });
+    return this.findById(userId);
   }
 
   async getAllUsers({ page = 1, pageSize = 10, search, userType, isActive }) {

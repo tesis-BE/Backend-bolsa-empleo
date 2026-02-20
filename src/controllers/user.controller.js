@@ -11,14 +11,16 @@ class UserController extends BaseController {
 
   async getGraduates(req, res) {
     try {
-      const { page = 1, pageSize = 12, search, isAvailable, facultyId } = req.query;
+      const { page = 1, pageSize = 12, search, availableForWork, facultyId } = req.query;
+      console.log('[getGraduates] Query recibido:', { page, pageSize, search, availableForWork, facultyId });
       const result = await UserService.searchGraduates({
         page: parseInt(page),
         pageSize: parseInt(pageSize),
         search: search || undefined,
-        availableForWork: isAvailable,
+        availableForWork,
         facultyId: facultyId || undefined,
       });
+      console.log('[getGraduates] Total resultados:', result.count ?? result.rows?.length);
       return res
         .status(200)
         .json(ApiResponse.paginated('Egresados obtenidos', result));
@@ -36,6 +38,7 @@ class UserController extends BaseController {
         return res.status(404).json(ApiResponse.error('Usuario no encontrado'));
       }
 
+      console.log('[getProfile] Usuario id:', user.id, '| tipo:', user.userType, '| photoUrl:', user.photoUrl, '| skills:', user.skills?.length ?? 0, '| educations:', user.educations?.length ?? 0, '| projects:', user.projects?.length ?? 0, '| certifications:', user.certifications?.length ?? 0);
       return res.status(200).json(ApiResponse.success('Perfil obtenido', user));
     } catch (error) {
       return res.status(500).json(ApiResponse.error(error.message));

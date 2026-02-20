@@ -24,6 +24,14 @@ const UserPortfolio = sequelize.define(
         isUrl: true,
       },
     },
+    type: {
+      type: DataTypes.ENUM('github', 'linkedin', 'website', 'behance', 'dribbble', 'other'),
+      defaultValue: 'website',
+    },
+    description: {
+      type: DataTypes.STRING(200),
+      allowNull: true,
+    },
     createdAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

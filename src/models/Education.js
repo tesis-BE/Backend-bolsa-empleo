@@ -62,6 +62,10 @@ const Education = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
+    degreeType: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+    },
   },
   {
     tableName: 'educations',
