@@ -263,6 +263,24 @@ class JobService extends BaseService {
     return job;
   }
 
+  async toDraft(jobId, recruiterId) {
+    const job = await Job.findByPk(jobId, {
+      include: [{ model: Company, as: 'company' }],
+    });
+
+    if (!job) {
+      throw new Error('Oferta no encontrada');
+    }
+
+    const allowedStatuses = [JOB_STATUS.PUBLISHED, JOB_STATUS.CLOSED];
+    if (!allowedStatuses.includes(job.status)) {
+      throw new Error('Solo se pueden revertir a borrador ofertas publicadas o cerradas');
+    }
+
+    await job.update({ status: JOB_STATUS.DRAFT });
+    return job;
+  }
+
   async deleteByRecruiter(jobId, recruiterId) {
     const job = await Job.findByPk(jobId, {
       include: [{ model: Company, as: 'company' }],

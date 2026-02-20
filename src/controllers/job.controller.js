@@ -119,6 +119,15 @@ class JobController extends BaseController {
     }
   }
 
+  async toDraft(req, res) {
+    try {
+      const job = await JobService.toDraft(req.params.id, req.user.id);
+      return res.status(200).json(ApiResponse.success('Oferta revertida a borrador', job));
+    } catch (error) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
+
   async delete(req, res) {
     try {
       await JobService.deleteByRecruiter(req.params.id, req.user.id);
