@@ -541,45 +541,31 @@ class AnalyticsService {
   }
 
   async getTopCompaniesByHires(limit = 10) {
-    const companies = await Company.findAll({
-      attributes: [
-        'id',
-        'name',
-        'logoUrl',
-        'industry',
-        [
-          sequelize.fn('COUNT', sequelize.col('jobs->applications.id')),
-          'hiresCount',
-        ],
-      ],
-      include: [
-        {
-          model: Job,
-          as: 'jobs',
-          attributes: [],
-          include: [
-            {
-              model: Application,
-              as: 'applications',
-              attributes: [],
-              where: { status: 'aceptado' },
-            },
-          ],
-        },
-      ],
-      group: ['Company.id'],
-      having: sequelize.literal('COUNT("jobs->applications"."id") > 0'),
-      order: [[sequelize.literal('hiresCount'), 'DESC']],
-      limit,
-      subQuery: false,
-    });
+    const [results] = await sequelize.query(
+      `SELECT
+         c.id,
+         c.name,
+         c."logoUrl",
+         c.industry,
+         CAST(COUNT(a.id) AS INTEGER) AS "hiresCount"
+       FROM companies c
+       INNER JOIN jobs j ON j."companyId" = c.id
+       INNER JOIN applications a ON a."jobId" = j.id AND a.status = 'aceptado'
+       GROUP BY c.id, c.name, c."logoUrl", c.industry
+       ORDER BY COUNT(a.id) DESC
+       LIMIT :limit`,
+      {
+        replacements: { limit },
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
 
-    return companies.map((company) => ({
-      id: company.id,
-      name: company.name,
-      logoUrl: company.logoUrl,
-      industry: company.industry,
-      hiresCount: parseInt(company.get('hiresCount')),
+    return (results || []).map((row) => ({
+      id: row.id,
+      name: row.name,
+      logoUrl: row.logoUrl,
+      industry: row.industry,
+      hiresCount: row.hiresCount,
     }));
   }
 
@@ -695,6 +681,7 @@ class AnalyticsService {
       return {
         avgDays: 0,
         totalHires: 0,
+        hiresThisMonth: 0,
         fastest: 0,
         slowest: 0,
       };

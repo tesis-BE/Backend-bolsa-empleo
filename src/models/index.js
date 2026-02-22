@@ -1,3 +1,4 @@
+const sequelize = require('../config/database');
 const User = require('./User');
 const Company = require('./Company');
 const Job = require('./Job');
@@ -159,6 +160,7 @@ User.hasMany(Project, { foreignKey: 'userId', as: 'projects' });
 Project.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 module.exports = {
+  sequelize,
   User,
   Company,
   Job,
