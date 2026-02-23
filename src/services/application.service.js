@@ -344,6 +344,18 @@ class ApplicationService extends BaseService {
             'photoUrl',
           ],
         },
+        {
+          model: Job,
+          as: 'job',
+          attributes: ['id', 'title', 'location', 'jobType', 'workMode'],
+          include: [
+            {
+              model: Company,
+              as: 'company',
+              attributes: ['id', 'name', 'logoUrl'],
+            },
+          ],
+        },
       ],
       order: [['appliedAt', 'DESC']],
     });
