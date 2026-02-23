@@ -14,6 +14,9 @@ router.post(
 router.post('/login', loginLimiter, authValidator.login, AuthController.login);
 router.post('/refresh-token', loginLimiter, AuthController.refreshToken);
 
+// Ruta pública: activar cuenta de reclutador
+router.post('/activate', loginLimiter, authValidator.activate, AuthController.activate);
+
 // Rutas protegidas
 const { authMiddleware } = require('../middlewares');
 router.get('/me', authMiddleware, AuthController.getMe);

@@ -1,4 +1,5 @@
 const AuthService = require('../services/auth.service');
+const recruiterRequestService = require('../services/recruiter-request.service');
 const ApiResponse = require('../utils/response.util');
 const { validationResult } = require('express-validator');
 
@@ -88,6 +89,26 @@ class AuthController {
       return res
         .status(200)
         .json(ApiResponse.success('Contraseña cambiada exitosamente'));
+    } catch (error) {
+      return res.status(400).json(ApiResponse.error(error.message));
+    }
+  }
+
+  async activate(req, res) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res
+          .status(400)
+          .json(ApiResponse.error('Error de validación', errors.array()));
+      }
+
+      const { token, password } = req.body;
+      await recruiterRequestService.activateAccount(token, password);
+
+      return res
+        .status(200)
+        .json(ApiResponse.success('Cuenta activada exitosamente. Ya puedes iniciar sesión.'));
     } catch (error) {
       return res.status(400).json(ApiResponse.error(error.message));
     }

@@ -57,8 +57,18 @@ const changePassword = [
     .withMessage('La nueva contraseña es requerida'),
 ];
 
+const activate = [
+  body('token')
+    .notEmpty()
+    .withMessage('El token de activación es requerido'),
+  body('password')
+    .isLength({ min: 6 })
+    .withMessage('La contraseña debe tener al menos 6 caracteres'),
+];
+
 module.exports = {
   register,
   login,
   changePassword,
+  activate,
 };

@@ -84,11 +84,6 @@ class JobService extends BaseService {
       throw new Error('Oferta no encontrada');
     }
 
-    const user = await User.findByPk(recruiterId);
-    if (!user || user.companyId !== job.companyId) {
-      throw new Error('No tienes permiso para editar esta oferta');
-    }
-
     const { companyId, status, ...updateData } = data;
 
     // Convertir formatos de frontend a backend

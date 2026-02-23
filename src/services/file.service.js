@@ -136,13 +136,6 @@ class FileService extends BaseService {
       throw new Error('Empresa no encontrada');
     }
 
-    const user = await User.findByPk(recruiterId);
-    if (!user || user.companyId !== companyId) {
-      throw new Error(
-        'No tienes permiso para actualizar el logo de esta empresa'
-      );
-    }
-
     const existingLogo = await File.findOne({
       where: {
         entityType: 'company',

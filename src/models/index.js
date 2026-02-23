@@ -22,6 +22,7 @@ const WorkExperience = require('./WorkExperience');
 const Education = require('./Education');
 const Certification = require('./Certification');
 const Project = require('./Project');
+const RecruiterRequest = require('./RecruiterRequest');
 
 // Definir relaciones
 // Company -> User (1 company owner: recruiterId, N members via User.companyId)
@@ -159,6 +160,10 @@ Certification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 User.hasMany(Project, { foreignKey: 'userId', as: 'projects' });
 Project.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
+// RecruiterRequest -> Company (empresa existente seleccionada)
+RecruiterRequest.belongsTo(Company, { foreignKey: 'existingCompanyId', as: 'existingCompany' });
+Company.hasMany(RecruiterRequest, { foreignKey: 'existingCompanyId', as: 'recruiterRequests' });
+
 module.exports = {
   sequelize,
   User,
@@ -184,4 +189,5 @@ module.exports = {
   Certification,
   Project,
   UserRole,
+  RecruiterRequest,
 };

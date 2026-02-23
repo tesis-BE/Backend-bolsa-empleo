@@ -10,6 +10,7 @@ const workExperienceValidator = require('./workExperience.validator');
 const educationValidator = require('./education.validator');
 const certificationValidator = require('./certification.validator');
 const projectValidator = require('./project.validator');
+const recruiterRequestValidator = require('./recruiter-request.validator');
 
 module.exports = {
   authValidator,
@@ -24,4 +25,5 @@ module.exports = {
   educationValidator,
   certificationValidator,
   projectValidator,
+  recruiterRequestValidator,
 };

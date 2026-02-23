@@ -20,6 +20,7 @@ const analyticsRoutes = require('./analytics.routes');
 const recommendationRoutes = require('./recommendation.routes');
 const profileRoutes = require('./profile.routes');
 const cedulaRoutes = require('./cedula.routes');
+const recruiterRequestRoutes = require('./recruiter-request.routes');
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
@@ -40,6 +41,7 @@ router.use('/analytics', analyticsRoutes);
 router.use('/recommendations', recommendationRoutes);
 router.use('/profile', profileRoutes);
 router.use('/cedula', cedulaRoutes);
+router.use('/recruiter-requests', recruiterRequestRoutes);
 
 router.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
