@@ -68,7 +68,9 @@ async function initializeDatabase() {
       },
       { name: 'manage_roles', module: 'roles', action: 'gestionar' },
       { name: 'view_analytics', module: 'reportes', action: 'ver' },
-      { name: 'manage_settings', module: 'configuración', action: 'gestionar' },
+      { name: 'manage_faculties', module: 'facultades', action: 'gestionar' },
+      { name: 'manage_careers', module: 'carreras', action: 'gestionar' },
+      { name: 'manage_universities', module: 'extensiones', action: 'gestionar' },
     ];
 
     for (const perm of permissions) {
