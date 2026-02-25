@@ -17,6 +17,7 @@ const {
   UserRole,
 } = require('../models');
 const { Op } = require('sequelize');
+const { PROFICIENCY_LEVELS } = require('../config/constants');
 
 class UserService extends BaseService {
   constructor() {
@@ -215,12 +216,36 @@ class UserService extends BaseService {
   }
 
   async addSkill(userId, { name, level }) {
+    const normalizedLevel = this.normalizeProficiencyLevel(level);
+
     const skill = await UserSkill.create({
       userId,
       skillName: name,
-      proficiencyLevel: level || 'intermediate',
+      proficiencyLevel: normalizedLevel,
     });
     return skill;
+  }
+
+  normalizeProficiencyLevel(level) {
+    const englishToSpanishMap = {
+      beginner: PROFICIENCY_LEVELS.BEGINNER,
+      intermediate: PROFICIENCY_LEVELS.INTERMEDIATE,
+      advanced: PROFICIENCY_LEVELS.ADVANCED,
+      expert: PROFICIENCY_LEVELS.EXPERT,
+    };
+
+    const rawLevel = typeof level === 'string' ? level.trim().toLowerCase() : '';
+
+    if (rawLevel in englishToSpanishMap) {
+      return englishToSpanishMap[rawLevel];
+    }
+
+    const validSpanishLevels = Object.values(PROFICIENCY_LEVELS);
+    if (validSpanishLevels.includes(rawLevel)) {
+      return rawLevel;
+    }
+
+    return PROFICIENCY_LEVELS.INTERMEDIATE;
   }
 
   async removeSkill(userId, skillId) {
